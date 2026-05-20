@@ -283,7 +283,7 @@ const LoginScreen = ({ onLogin }) => {
             <Ic icon={GraduationCap} size={30} color="#fff" />
           </div>
           <div>
-            <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 26, fontWeight: 800, color: "#fff", margin: 0 }}>UniConnect</h1>
+            <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 26, fontWeight: 800, color: "#fff", margin: 0 }}>Unisa myModules</h1>
             <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 13, margin: 0 }}>University Learning Portal</p>
           </div>
         </div>
@@ -1294,7 +1294,7 @@ const LecturerTextArea = ({ value, onChange, placeholder, rows = 4 }) => (
 );
 
 // ─── LECTURER: MAIN DASHBOARD ────────────────────────────────
-const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, onAddClass, onAddAssessment, onEditAssessment, onDeleteAssessment, assessmentsDb, announcementsDb, onAddAnnouncement, forumsDb, onAddForumPost, onAddModule, onUpdateContact }) => {
+const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, onAddClass, onAddAssessment, onEditAssessment, onDeleteAssessment, assessmentsDb, announcementsDb, onAddAnnouncement, forumsDb, onAddForumPost, onAddModule, onUpdateContact, threadReplies }) => {
   const [tab, setTab] = useState("home");
   const lTabs = [
     { id: "home", icon: LayoutDashboard, label: "Home" },
@@ -1312,7 +1312,7 @@ const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, o
       case "modules": return <LecturerModules data={data} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} moduleOptions={moduleOptions} assessmentsDb={assessmentsDb} onAddModule={onAddModule} />;
       case "assessments": return <LecturerAssessments data={data} assessmentsDb={assessmentsDb} moduleOptions={moduleOptions} onAdd={onAddAssessment} onEdit={onEditAssessment} onDelete={onDeleteAssessment} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} />;
       case "classes": return <LecturerClasses data={data} scheduledClasses={scheduledClasses} moduleOptions={moduleOptions} onAdd={onAddClass} />;
-      case "announcements": return <LecturerAnnouncements data={data} announcementsDb={announcementsDb} forumsDb={forumsDb} moduleOptions={moduleOptions} onAdd={onAddAnnouncement} onAddForumPost={onAddForumPost} />;
+      case "announcements": return <LecturerAnnouncements data={data} announcementsDb={announcementsDb} forumsDb={forumsDb} moduleOptions={moduleOptions} onAdd={onAddAnnouncement} onAddForumPost={onAddForumPost} threadReplies={threadReplies} />;
       default: return null;
     }
   };
@@ -1915,12 +1915,104 @@ const LecturerClasses = ({ data, scheduledClasses, moduleOptions, onAdd }) => {
 };
 
 // Lecturer Announcements
-const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions, onAdd, onAddForumPost }) => {
-  const [view, setView] = useState("list"); // list | announcement | forum
+const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions, onAdd, onAddForumPost, threadReplies }) => {
+  const [view, setView] = useState("list"); // list | announcement | forum | thread
+  const [selectedThread, setSelectedThread] = useState(null);
   const [annForm, setAnnForm] = useState({ module: "", title: "", message: "" });
   const [forumForm, setForumForm] = useState({ module: "", topic: "", content: "", links: [""] });
   const lecturerAnnouncements = announcementsDb.filter(a => a.isLecturer);
   const lecturerForumPosts = (forumsDb || []).filter(f => f.isLecturer);
+
+  // Thread detail view — lecturer reads student replies
+  if (view === "thread" && selectedThread) {
+    const replies = threadReplies?.[selectedThread.id] || [];
+    const mod = null; // colour from thread module
+    const modColor = theme.blue;
+    return (
+      <div style={{ padding: "0 16px 16px" }}>
+        <BackButton onClick={() => { setView("list"); setSelectedThread(null); }} label="Back to Updates" />
+        {/* Thread header */}
+        <div style={{ background: `linear-gradient(135deg, ${theme.blue}, #1A4A80)`, borderRadius: 18, padding: "16px 18px", marginBottom: 14, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -14, right: -14, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
+          <div style={{ display: "flex", gap: 5, marginBottom: 6 }}>
+            <Badge color="#fff">{selectedThread.module}</Badge>
+            <Badge color="#fff">Forum Thread</Badge>
+          </div>
+          <h3 style={{ fontFamily: "'Sora', sans-serif", color: "#fff", fontSize: 15, fontWeight: 800, margin: "0 0 4px" }}>{selectedThread.topic}</h3>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <Ic icon={MessageSquare} size={11} color="rgba(255,255,255,0.7)" />
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: 0 }}>{1 + replies.length} post{1 + replies.length !== 1 ? "s" : ""}</p>
+          </div>
+        </div>
+
+        {/* Opening post (lecturer) */}
+        <Card style={{ marginBottom: 10, borderLeft: `4px solid ${theme.orange}` }}>
+          <div style={{ display: "flex", gap: 9 }}>
+            <Avatar initials={data.avatar} size={36} bg={theme.orange} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
+                <span style={{ fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{data.name}</span>
+                <Badge color={theme.orange}>Lecturer</Badge>
+                <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                  <Ic icon={Clock} size={10} color={theme.textMuted} />
+                  <span style={{ fontSize: 10, color: theme.textMuted }}>{selectedThread.lastPost}</span>
+                </div>
+              </div>
+              <p style={{ margin: "0 0 8px", fontSize: 13, color: theme.textSecondary, lineHeight: 1.6 }}>{selectedThread.openingPost?.text}</p>
+              {selectedThread.openingPost?.links?.filter(l => l.trim()).map((link, i) => (
+                <a key={i} href={link} target="_blank" rel="noopener noreferrer"
+                  style={{ display: "flex", alignItems: "center", gap: 6, background: theme.blue + "12", border: `1.5px solid ${theme.blue}33`, borderRadius: 8, padding: "6px 10px", textDecoration: "none", marginBottom: 5 }}>
+                  <Ic icon={Link2} size={11} color={theme.blue} />
+                  <span style={{ fontSize: 11, fontWeight: 600, color: theme.blue, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link}</span>
+                  <Ic icon={ArrowRight} size={10} color={theme.blue} />
+                </a>
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        {/* Student replies */}
+        {replies.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "24px 0", color: theme.textMuted }}>
+            <Ic icon={MessageSquare} size={28} color={theme.border} />
+            <p style={{ fontWeight: 600, fontSize: 13, marginTop: 7 }}>No student replies yet</p>
+            <p style={{ fontSize: 11, marginTop: 3, color: theme.textMuted }}>Students can reply from their Forums tab</p>
+          </div>
+        ) : (
+          replies.map((reply, i) => (
+            <Card key={reply.id || i} style={{ marginBottom: 9 }}>
+              <div style={{ display: "flex", gap: 9 }}>
+                <Avatar initials={(reply.author || "S").slice(0, 2).toUpperCase()} size={34} bg={theme.blue} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 3, flexWrap: "wrap" }}>
+                    <span style={{ fontWeight: 700, fontSize: 12 }}>{reply.author || "Student"}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                      <Ic icon={Clock} size={10} color={theme.textMuted} />
+                      <span style={{ fontSize: 10, color: theme.textMuted }}>{reply.time || "Just now"}</span>
+                    </div>
+                  </div>
+                  <p style={{ margin: "0 0 6px", fontSize: 12, color: theme.textSecondary, lineHeight: 1.6 }}>{reply.text}</p>
+                  {reply.links?.filter(l => l?.trim()).map((link, li) => (
+                    <a key={li} href={link} target="_blank" rel="noopener noreferrer"
+                      style={{ display: "flex", alignItems: "center", gap: 6, background: theme.blue + "12", border: `1.5px solid ${theme.blue}33`, borderRadius: 8, padding: "6px 10px", textDecoration: "none", marginBottom: 5 }}>
+                      <Ic icon={Link2} size={11} color={theme.blue} />
+                      <span style={{ fontSize: 11, fontWeight: 600, color: theme.blue, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link}</span>
+                    </a>
+                  ))}
+                  {reply.attachments?.map((att, ai) => (
+                    <div key={ai} style={{ display: "flex", alignItems: "center", gap: 7, background: theme.surfaceAlt, border: `1.5px solid ${theme.border}`, borderRadius: 8, padding: "6px 10px", marginBottom: 5 }}>
+                      <Ic icon={Paperclip} size={12} color={theme.textMuted} />
+                      <span style={{ fontSize: 11, color: theme.textSecondary, flex: 1 }}>{att.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    );
+  }
 
   // Announcement form
   if (view === "announcement") return (
@@ -2056,35 +2148,41 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
       {lecturerForumPosts.length > 0 && (
         <>
           <SectionHeader title="Forum Posts" icon={MessageSquare} />
-          {lecturerForumPosts.map(f => (
-            <Card key={f.id} style={{ marginBottom: 10, borderLeft: `4px solid ${theme.blue}` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
-                <div style={{ display: "flex", gap: 5 }}>
-                  <Badge color={theme.blue}>{f.module}</Badge>
-                  <Badge color={theme.blue}>Forum Thread</Badge>
-                </div>
-                <span style={{ fontSize: 10, color: theme.textMuted }}>{f.lastPost}</span>
-              </div>
-              <p style={{ margin: "0 0 3px", fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{f.topic}</p>
-              {f.openingPost?.text && (
-                <p style={{ margin: "0 0 6px", fontSize: 12, color: theme.textSecondary, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{f.openingPost.text}</p>
-              )}
-              {f.openingPost?.links?.length > 0 && (
-                <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                  {f.openingPost.links.map((l, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 4, background: theme.blue + "12", borderRadius: 7, padding: "3px 8px" }}>
-                      <Ic icon={Link2} size={10} color={theme.blue} />
-                      <span style={{ fontSize: 10, color: theme.blue, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l}</span>
+          {lecturerForumPosts.map(f => {
+            const replyCount = (threadReplies?.[f.id] || []).length;
+            return (
+              <Card key={f.id} onClick={() => { setSelectedThread(f); setView("thread"); }} style={{ marginBottom: 10, borderLeft: `4px solid ${theme.blue}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", gap: 5, marginBottom: 5 }}>
+                      <Badge color={theme.blue}>{f.module}</Badge>
+                      <Badge color={theme.blue}>Forum Thread</Badge>
+                      {replyCount > 0 && <Badge color={theme.green}>{replyCount} repl{replyCount !== 1 ? "ies" : "y"}</Badge>}
                     </div>
-                  ))}
+                    <p style={{ margin: "0 0 3px", fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{f.topic}</p>
+                    {f.openingPost?.text && (
+                      <p style={{ margin: "0 0 6px", fontSize: 12, color: theme.textSecondary, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{f.openingPost.text}</p>
+                    )}
+                    {f.openingPost?.links?.filter(l => l.trim()).length > 0 && (
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                        {f.openingPost.links.filter(l => l.trim()).map((l, i) => (
+                          <div key={i} style={{ display: "flex", alignItems: "center", gap: 4, background: theme.blue + "12", borderRadius: 7, padding: "3px 8px" }}>
+                            <Ic icon={Link2} size={10} color={theme.blue} />
+                            <span style={{ fontSize: 10, color: theme.blue, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Ic icon={ChevronRight} size={15} color={theme.border} style={{ marginLeft: 8, flexShrink: 0 }} />
                 </div>
-              )}
-              <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 7, paddingTop: 7, borderTop: `1px solid ${theme.border}` }}>
-                <Ic icon={MessageSquare} size={11} color={theme.textMuted} />
-                <span style={{ fontSize: 11, color: theme.textMuted }}>{f.posts} post{f.posts !== 1 ? "s" : ""} · visible to students in Forums tab</span>
-              </div>
-            </Card>
-          ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 7, paddingTop: 7, borderTop: `1px solid ${theme.border}` }}>
+                  <Ic icon={MessageSquare} size={11} color={theme.textMuted} />
+                  <span style={{ fontSize: 11, color: theme.textMuted }}>{1 + replyCount} post{1 + replyCount !== 1 ? "s" : ""} · {f.lastPost} · tap to view replies</span>
+                </div>
+              </Card>
+            );
+          })}
         </>
       )}
     </div>
@@ -2184,7 +2282,7 @@ export default function App() {
     <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: theme.offWhite, height: "100vh", maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", position: "relative", boxShadow: "0 0 60px rgba(0,0,0,0.15)", overflow: "hidden" }}>
       <div style={{ background: `linear-gradient(135deg, ${theme.orange}, ${theme.orangeDark})`, padding: "15px 18px 13px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: `0 4px 20px ${theme.shadow}`, flexShrink: 0 }}>
         <div>
-          <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 19, fontWeight: 800, margin: 0, color: "#fff" }}>{screenTitles[activeTab] || "UniConnect"}</h1>
+          <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 19, fontWeight: 800, margin: 0, color: "#fff" }}>{screenTitles[activeTab] || "Unisa myModules"}</h1>
           {role === "student" && <p style={{ margin: "1px 0 0", fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{studentData.id}</p>}
           {role === "lecturer" && <p style={{ margin: "1px 0 0", fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{LECTURER_DATA.id}</p>}
         </div>
@@ -2216,6 +2314,7 @@ export default function App() {
               onAddForumPost={addForumPost}
               onAddModule={addModule}
               onUpdateContact={setContactInfo}
+              threadReplies={threadReplies}
             />
         }
       </div>
