@@ -1063,7 +1063,7 @@ const AnnouncementsScreen = ({ data }) => {
 
 // ─── STUDENT: FORUMS ──────────────────────────────────────────
 // ─── REPLY COMPOSER ──────────────────────────────────────────
-const ReplyComposer = ({ onSend, currentUser = { name: "Lerato Dlamini", avatar: "LD", isLecturer: false } }) => {
+const ReplyComposer = ({ onSend, studentName, studentId }) => {
   const [text, setText] = useState("");
   const [links, setLinks] = useState([]);
   const [files, setFiles] = useState([]);
@@ -1075,9 +1075,21 @@ const ReplyComposer = ({ onSend, currentUser = { name: "Lerato Dlamini", avatar:
     { name: "diagram.png", size: "340 KB", type: "img" },
     { name: "code_example.zip", size: "88 KB", type: "zip" },
   ];
+  const avatar = studentName ? studentName.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() : "ST";
   const handleSend = () => {
     if (!canSend) return;
-    onSend({ user: currentUser.name, avatar: currentUser.avatar, isLecturer: currentUser.isLecturer || false, time: "Just now", text: text.trim(), links, files });
+    onSend({
+      user: studentName || "Student",
+      author: studentName || "Student",
+      studentId: studentId || "",
+      avatar,
+      isLecturer: false,
+      time: "Just now",
+      text: text.trim(),
+      links,
+      attachments: files,
+      files,
+    });
     setText(""); setLinks([]); setFiles([]); setNewLink(""); setShowAttach(false);
   };
   const addLink = () => { if (newLink.trim()) { setLinks(l => [...l, newLink.trim()]); setNewLink(""); } };
@@ -1145,14 +1157,17 @@ const ReplyComposer = ({ onSend, currentUser = { name: "Lerato Dlamini", avatar:
 const ForumsScreen = ({ data, threadReplies = {}, onAddReply }) => {
   const [selected, setSelected] = useState(null);
   const [collapsed, setCollapsed] = useState({});
+  // Student identity from data
+  const studentName = data.name;
+  const studentId = data.id;
 
   if (selected) {
     const mod = data.modules.find(m => m.code === selected.module);
     const modColor = mod?.color || theme.orange;
     const staticPosts = [
-      { id: "s1", user: "Thabo M.", time: "2 hrs ago", text: "Has anyone figured out the architecture for Phase 2? I'm struggling with the sequence diagrams.", avatar: "TM", links: [], files: [] },
+      { id: "s1", user: "Thabo M.", studentId: "STU2024-0321", time: "2 hrs ago", text: "Has anyone figured out the architecture for Phase 2? I'm struggling with the sequence diagrams.", avatar: "TM", links: [], files: [] },
       { id: "s2", user: "Prof. A. Mokoena", time: "1 hr ago", text: "Good question! Remember that sequence diagrams should reflect the runtime interaction between objects.", avatar: "AM", isLecturer: true, links: [], files: [] },
-      { id: "s3", user: "Zanele K.", time: "45 min ago", text: "I found the examples from chapter 5 really helpful. Especially figure 5.12.", avatar: "ZK", links: [], files: [] },
+      { id: "s3", user: "Zanele K.", studentId: "STU2024-0198", time: "45 min ago", text: "I found the examples from chapter 5 really helpful. Especially figure 5.12.", avatar: "ZK", links: [], files: [] },
     ];
     const openingPosts = selected.openingPost
       ? [{ id: "op", user: selected.openingPost.user, avatar: selected.openingPost.avatar, time: selected.openingPost.time, text: selected.openingPost.text, links: selected.openingPost.links || [], files: [], isLecturer: true }]
@@ -1169,7 +1184,7 @@ const ForumsScreen = ({ data, threadReplies = {}, onAddReply }) => {
           {selected.isLecturer && <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 5 }}><Ic icon={GraduationCap} size={10} color="rgba(255,255,255,0.8)" /><p style={{ color: "rgba(255,255,255,0.8)", fontSize: 10, fontWeight: 700, margin: 0 }}>POSTED BY LECTURER</p></div>}
           <Badge color="#fff">{selected.module}</Badge>
           <h3 style={{ margin: "5px 0 3px", fontFamily: "'Sora', sans-serif", fontSize: 15, color: "#fff", fontWeight: 800 }}>{selected.topic}</h3>
-          <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>{allPosts.length} posts · {allPosts.length > 0 ? allPosts[allPosts.length - 1].time : "—"}</p>
+          <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>{allPosts.length} post{allPosts.length !== 1 ? "s" : ""}</p>
         </div>
 
         {allPosts.map((post, i) => (
@@ -1177,10 +1192,15 @@ const ForumsScreen = ({ data, threadReplies = {}, onAddReply }) => {
             <div style={{ display: "flex", gap: 9 }}>
               <Avatar initials={post.avatar} size={34} bg={post.isLecturer ? theme.orange : theme.blue} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
-                  <span style={{ fontWeight: 700, fontSize: 12 }}>{post.user}</span>
-                  {post.isLecturer && <Badge color={theme.orange}>Lecturer</Badge>}
-                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}><Ic icon={Clock} size={10} color={theme.textMuted} /><span style={{ fontSize: 10, color: theme.textMuted }}>{post.time}</span></div>
+                <div style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 4, flexWrap: "wrap" }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ fontWeight: 700, fontSize: 12, color: theme.textPrimary }}>{post.user}</span>
+                    {!post.isLecturer && post.studentId && (
+                      <span style={{ fontSize: 10, color: theme.textMuted, marginLeft: 6, fontWeight: 600 }}>· {post.studentId}</span>
+                    )}
+                    {post.isLecturer && <Badge color={theme.orange}>Lecturer</Badge>}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}><Ic icon={Clock} size={10} color={theme.textMuted} /><span style={{ fontSize: 10, color: theme.textMuted }}>{post.time}</span></div>
                 </div>
                 {post.text && <p style={{ margin: "0 0 8px", fontSize: 12, color: theme.textSecondary, lineHeight: 1.6 }}>{post.text}</p>}
                 {post.links?.length > 0 && (
@@ -1216,7 +1236,7 @@ const ForumsScreen = ({ data, threadReplies = {}, onAddReply }) => {
           </Card>
         ))}
 
-        <ReplyComposer onSend={(reply) => onAddReply(selected.id, reply)} />
+        <ReplyComposer onSend={(reply) => onAddReply(selected.id, reply)} studentName={studentName} studentId={studentId} />
       </div>
     );
   }
@@ -1982,11 +2002,16 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
           replies.map((reply, i) => (
             <Card key={reply.id || i} style={{ marginBottom: 9 }}>
               <div style={{ display: "flex", gap: 9 }}>
-                <Avatar initials={(reply.author || "S").slice(0, 2).toUpperCase()} size={34} bg={theme.blue} />
+                <Avatar initials={(reply.author || reply.user || "S").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase()} size={34} bg={theme.blue} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 3, flexWrap: "wrap" }}>
-                    <span style={{ fontWeight: 700, fontSize: 12 }}>{reply.author || "Student"}</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                  <div style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 3, flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{reply.author || reply.user || "Student"}</span>
+                      {reply.studentId && (
+                        <span style={{ fontSize: 10, color: theme.textMuted, marginLeft: 6, fontWeight: 600 }}>· {reply.studentId}</span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
                       <Ic icon={Clock} size={10} color={theme.textMuted} />
                       <span style={{ fontSize: 10, color: theme.textMuted }}>{reply.time || "Just now"}</span>
                     </div>
