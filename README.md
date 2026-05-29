@@ -1,70 +1,76 @@
-# Getting Started with Create React App
+# Unisa myModules
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A mobile-first university learning portal built with React, designed and optimised for Android and iOS. The app provides a unified platform for students and lecturers to manage modules, assessments, communication, and class scheduling.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+### Student Portal
+- **Home Dashboard** — Personalised welcome screen with urgent assessment alerts, overdue notices, upcoming classes with Teams join links, and recent announcements
+- **My Modules** — View all enrolled modules with descriptions, progress tracking, lecturer contact details, resources, scheduled classes, and available quizzes
+- **Assessments & Tests** — Assessments grouped by module with live status computed from the device clock (Upcoming, Urgent, Overdue, Locked, Completed). Locked exams reveal details only on the release date
+- **Updates** — Announcements from lecturers with expandable text for long messages
+- **Forums** — Module-grouped discussion threads. Students can reply with text, links, and file attachments. Lecturer-posted threads are clearly labelled
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Lecturer Portal
+- **Home Dashboard** — Overview stats, upcoming classes, recently sent announcements, and editable contact details (personal and School of Computing)
+- **Modules** — Click into any module to view its description, manage quizzes, and see all associated assessments. Register new modules with school credentials
+- **Assessments** — Create Assignments, Projects, and Exams grouped by module. Full edit and delete functionality. All assessment types support a lock feature with a configurable release date
+- **Classes** — Schedule classes with date, time, duration, recurrence, and optional Microsoft Teams meeting link. Classes appear on the student home page and inside the relevant module
+- **Updates** — Post announcements (appear in student Updates tab) or post directly to the student Forums tab with optional links attached. View student replies on forum threads, including student name and student number
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Shared Features
+- **Multiple Choice Quizzes** — Lecturers build quizzes per module with any number of questions, four options each, correct answer marking, and an optional release date lock. Students take quizzes natively in-app with instant scored feedback
+- **Live Date Engine** — Assessment statuses (Overdue, Urgent, Upcoming, Locked) are computed automatically from the device clock and refresh at midnight without a page reload
+- **Shared State** — All data (quizzes, assessments, classes, announcements, forum posts, replies) is shared in real time between the lecturer and student views within the same session
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Tech Stack
 
-### `npm run build`
+| Layer | Technology |
+|---|---|
+| Framework | React 18 (Create React App) |
+| Icons | Lucide React |
+| Fonts | Sora, Plus Jakarta Sans (Google Fonts) |
+| Styling | Inline CSS-in-JS |
+| State Management | React useState / useEffect |
+| No backend | All data is in-memory React state |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Getting Started
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Prerequisites
+- Node.js v16 or higher
+- npm v8 or higher
 
-### `npm run eject`
+### Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+# Clone the repository
+git clone https://github.com/your-username/unisa-mymodules.git
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Navigate into the project
+cd unisa-mymodules
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Install dependencies
+npm install
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Start the development server
+npm start
+```
 
-## Learn More
+The app opens at `http://localhost:3000`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Demo Credentials
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Role | Username | Password |
+|---|---|---|
+| Student | `lerato.dlamini` | `student123` |
+| Lecturer | `prof.mokoena` | `lecturer123` |
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Project Structure
