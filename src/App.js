@@ -1314,7 +1314,7 @@ const LecturerTextArea = ({ value, onChange, placeholder, rows = 4 }) => (
 );
 
 // ─── LECTURER: MAIN DASHBOARD ────────────────────────────────
-const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, onAddClass, onAddAssessment, onEditAssessment, onDeleteAssessment, assessmentsDb, announcementsDb, onAddAnnouncement, forumsDb, onAddForumPost, onAddModule, onUpdateContact, threadReplies }) => {
+const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, onAddClass, onEditClass, onDeleteClass, onAddAssessment, onEditAssessment, onDeleteAssessment, assessmentsDb, announcementsDb, onAddAnnouncement, forumsDb, onAddForumPost, onAddModule, onUpdateContact, threadReplies }) => {
   const [tab, setTab] = useState("home");
   const lTabs = [
     { id: "home", icon: LayoutDashboard, label: "Home" },
@@ -1331,7 +1331,7 @@ const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, o
       case "home": return <LecturerHome data={data} scheduledClasses={scheduledClasses} assessmentsDb={assessmentsDb} announcementsDb={announcementsDb} onNavigate={setTab} onUpdateContact={onUpdateContact} />;
       case "modules": return <LecturerModules data={data} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} moduleOptions={moduleOptions} assessmentsDb={assessmentsDb} onAddModule={onAddModule} />;
       case "assessments": return <LecturerAssessments data={data} assessmentsDb={assessmentsDb} moduleOptions={moduleOptions} onAdd={onAddAssessment} onEdit={onEditAssessment} onDelete={onDeleteAssessment} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} />;
-      case "classes": return <LecturerClasses data={data} scheduledClasses={scheduledClasses} moduleOptions={moduleOptions} onAdd={onAddClass} />;
+      case "classes": return <LecturerClasses data={data} scheduledClasses={scheduledClasses} moduleOptions={moduleOptions} onAdd={onAddClass} onEditClass={onEditClass} onDeleteClass={onDeleteClass} />;
       case "announcements": return <LecturerAnnouncements data={data} announcementsDb={announcementsDb} forumsDb={forumsDb} moduleOptions={moduleOptions} onAdd={onAddAnnouncement} onAddForumPost={onAddForumPost} threadReplies={threadReplies} />;
       default: return null;
     }
@@ -1857,20 +1857,54 @@ const LecturerAssessments = ({ data, assessmentsDb, moduleOptions, onAdd, onEdit
 };
 
 // Lecturer Classes
-const LecturerClasses = ({ data, scheduledClasses, moduleOptions, onAdd }) => {
-  const [form, setForm] = useState({ module: "", title: "", date: "", time: "", duration: "60", teamsLink: "", recurring: "no" });
-  const [adding, setAdding] = useState(false);
+const LecturerClasses = ({ data, scheduledClasses, moduleOptions, onAdd, onEditClass, onDeleteClass }) => {
+  const EMPTY_FORM = { module: "", title: "", date: "", time: "", duration: "60", teamsLink: "", recurring: "no" };
+  const [view, setView] = useState("list"); // list | add | edit
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [editingId, setEditingId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const valid = form.module && form.title && form.date && form.time;
-  const upcoming = scheduledClasses.filter(c => new Date(`${c.date}T${c.time}`) >= new Date()).sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
-  const past = scheduledClasses.filter(c => new Date(`${c.date}T${c.time}`) < new Date()).sort((a, b) => new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`));
 
-  if (adding) return (
+  const upcoming = scheduledClasses
+    .filter(c => new Date(`${c.date}T${c.time}`) >= new Date())
+    .sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+  const past = scheduledClasses
+    .filter(c => new Date(`${c.date}T${c.time}`) < new Date())
+    .sort((a, b) => new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`));
+
+  const openAdd = () => { setForm(EMPTY_FORM); setEditingId(null); setView("add"); };
+  const openEdit = (cls) => {
+    setForm({ module: cls.module, title: cls.title, date: cls.date, time: cls.time, duration: cls.duration, teamsLink: cls.teamsLink || "", recurring: cls.recurring || "no" });
+    setEditingId(cls.id); setView("edit");
+  };
+  const handleSave = () => {
+    if (!valid) return;
+    if (view === "edit") { onEditClass({ ...form, id: editingId }); }
+    else { onAdd(form); }
+    setForm(EMPTY_FORM); setEditingId(null); setView("list");
+  };
+
+  // ── SHARED FORM (used for both add & edit) ──
+  if (view === "add" || view === "edit") return (
     <div style={{ padding: "0 16px 24px" }}>
-      <BackButton onClick={() => setAdding(false)} label="Cancel" />
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><Ic icon={CalendarCheck} size={17} color={theme.orange} /><h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: 17, fontWeight: 800, color: theme.textPrimary, margin: 0 }}>Schedule a Class</h3></div>
-      <p style={{ color: theme.textMuted, fontSize: 12, margin: "0 0 16px" }}>Students will see this on the home page and in their module</p>
-      <LecturerField label="Module"><LecturerSelect value={form.module} onChange={v => setForm(f => ({ ...f, module: v }))} options={moduleOptions} placeholder="Select module..." /></LecturerField>
-      <LecturerField label="Class Title"><LecturerTextInput value={form.title} onChange={v => setForm(f => ({ ...f, title: v }))} placeholder="e.g. Lecture — Design Patterns" /></LecturerField>
+      <BackButton onClick={() => { setView("list"); setEditingId(null); }} label="Cancel" />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+        <Ic icon={view === "edit" ? Edit3 : CalendarCheck} size={17} color={theme.orange} />
+        <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: 17, fontWeight: 800, color: theme.textPrimary, margin: 0 }}>
+          {view === "edit" ? "Edit Class" : "Schedule a Class"}
+        </h3>
+      </div>
+      <p style={{ color: theme.textMuted, fontSize: 12, margin: "0 0 16px" }}>
+        {view === "edit" ? "Changes will update on the student home page and module view" : "Students will see this on the home page and in their module"}
+      </p>
+
+      <LecturerField label="Module">
+        <LecturerSelect value={form.module} onChange={v => setForm(f => ({ ...f, module: v }))} options={moduleOptions} placeholder="Select module..." />
+      </LecturerField>
+      <LecturerField label="Class Title">
+        <LecturerTextInput value={form.title} onChange={v => setForm(f => ({ ...f, title: v }))} placeholder="e.g. Lecture — Design Patterns" />
+      </LecturerField>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 12 }}>
         {[{ label: "Date", field: "date", type: "date" }, { label: "Time", field: "time", type: "time" }].map(({ label, field, type }) => (
           <div key={field}>
@@ -1881,27 +1915,39 @@ const LecturerClasses = ({ data, scheduledClasses, moduleOptions, onAdd }) => {
           </div>
         ))}
       </div>
+
       <LecturerField label="Duration">
-        <LecturerSelect value={form.duration} onChange={v => setForm(f => ({ ...f, duration: v }))} options={[{ value: "45", label: "45 minutes" }, { value: "60", label: "1 hour" }, { value: "90", label: "1.5 hours" }, { value: "120", label: "2 hours" }]} placeholder="Select duration..." />
+        <LecturerSelect value={form.duration} onChange={v => setForm(f => ({ ...f, duration: v }))}
+          options={[{ value: "45", label: "45 minutes" }, { value: "60", label: "1 hour" }, { value: "90", label: "1.5 hours" }, { value: "120", label: "2 hours" }]}
+          placeholder="Select duration..." />
       </LecturerField>
       <LecturerField label="Recurring">
-        <LecturerSelect value={form.recurring} onChange={v => setForm(f => ({ ...f, recurring: v }))} options={[{ value: "no", label: "Once only" }, { value: "weekly", label: "Weekly" }, { value: "biweekly", label: "Every 2 weeks" }]} placeholder="Recurrence..." />
+        <LecturerSelect value={form.recurring} onChange={v => setForm(f => ({ ...f, recurring: v }))}
+          options={[{ value: "no", label: "Once only" }, { value: "weekly", label: "Weekly" }, { value: "biweekly", label: "Every 2 weeks" }]}
+          placeholder="Recurrence..." />
       </LecturerField>
       <LecturerField label="Microsoft Teams Link (optional)">
         <div style={{ position: "relative" }}>
-          <div style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)" }}><Ic icon={Link2} size={14} color={theme.textMuted} /></div>
-          <input type="url" value={form.teamsLink} onChange={e => setForm(f => ({ ...f, teamsLink: e.target.value }))} placeholder="https://teams.microsoft.com/l/meetup-join/..."
+          <div style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)" }}>
+            <Ic icon={Link2} size={14} color={theme.textMuted} />
+          </div>
+          <input type="url" value={form.teamsLink} onChange={e => setForm(f => ({ ...f, teamsLink: e.target.value }))}
+            placeholder="https://teams.microsoft.com/l/meetup-join/..."
             style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 11, padding: "10px 12px 10px 34px", fontSize: 13, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
             onFocus={e => e.target.style.borderColor = theme.purple} onBlur={e => e.target.style.borderColor = theme.border} />
         </div>
+        <p style={{ fontSize: 11, color: theme.textMuted, margin: "4px 0 0" }}>Paste a Teams link so students can join online</p>
       </LecturerField>
-      <button onClick={() => { if (valid) { onAdd(form); setForm({ module: "", title: "", date: "", time: "", duration: "60", teamsLink: "", recurring: "no" }); setAdding(false); } }} disabled={!valid}
+
+      <button onClick={handleSave} disabled={!valid}
         style={{ width: "100%", background: valid ? `linear-gradient(135deg, ${theme.orange}, ${theme.orangeDark})` : theme.border, color: "#fff", border: "none", borderRadius: 13, padding: "14px", fontSize: 14, fontWeight: 800, cursor: valid ? "pointer" : "not-allowed", fontFamily: "'Sora', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-        <Ic icon={CalendarCheck} size={15} color="#fff" />Schedule Class
+        <Ic icon={view === "edit" ? CheckCircle : CalendarCheck} size={15} color="#fff" />
+        {view === "edit" ? "Save Changes" : "Schedule Class"}
       </button>
     </div>
   );
 
+  // ── CLASS CARD ──
   const ClassCard = ({ cls }) => {
     const mod = data.modules.find(m => m.code === cls.module);
     const modColor = mod?.color || theme.orange;
@@ -1915,21 +1961,71 @@ const LecturerClasses = ({ data, scheduledClasses, moduleOptions, onAdd }) => {
           {cls.recurring !== "no" && <Badge color={theme.textMuted}><Ic icon={Repeat} size={9} color={theme.textMuted} />{cls.recurring}</Badge>}
           {cls.teamsLink && <Badge color={theme.purple}><Ic icon={Video} size={9} color={theme.purple} />Teams</Badge>}
         </div>
-        <p style={{ margin: "0 0 2px", fontWeight: 700, fontSize: 12, color: theme.textPrimary }}>{cls.title}</p>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}><Ic icon={Clock} size={11} color={theme.textMuted} /><p style={{ margin: 0, fontSize: 11, color: theme.textMuted }}>{clsDate.toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })} · {cls.time} · {cls.duration}min</p></div>
-        {cls.teamsLink && <a href={cls.teamsLink} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 6, background: theme.purple + "15", border: `1.5px solid ${theme.purple}33`, borderRadius: 9, padding: "7px 10px", textDecoration: "none", marginTop: 9 }}><Ic icon={Video} size={12} color={theme.purple} /><span style={{ fontSize: 11, fontWeight: 700, color: theme.purple }}>Join on Teams</span><Ic icon={ArrowRight} size={10} color={theme.purple} style={{ marginLeft: "auto" }} /></a>}
+        <p style={{ margin: "0 0 2px", fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{cls.title}</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 9 }}>
+          <Ic icon={Clock} size={11} color={theme.textMuted} />
+          <p style={{ margin: 0, fontSize: 11, color: theme.textMuted }}>
+            {clsDate.toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })} · {cls.time} · {cls.duration}min
+          </p>
+        </div>
+        {cls.teamsLink && (
+          <a href={cls.teamsLink} target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: 6, background: theme.purple + "15", border: `1.5px solid ${theme.purple}33`, borderRadius: 9, padding: "7px 10px", textDecoration: "none", marginBottom: 9 }}>
+            <Ic icon={Video} size={12} color={theme.purple} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: theme.purple }}>Join on Teams</span>
+            <Ic icon={ArrowRight} size={10} color={theme.purple} style={{ marginLeft: "auto" }} />
+          </a>
+        )}
+        {/* Edit / Delete row */}
+        <div style={{ display: "flex", gap: 7, paddingTop: 9, borderTop: `1px solid ${theme.border}` }}>
+          <button onClick={() => openEdit(cls)}
+            style={{ flex: 1, background: theme.orange + "15", border: `1.5px solid ${theme.orange}33`, borderRadius: 9, padding: "8px", fontSize: 12, fontWeight: 700, color: theme.orange, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            <Ic icon={Edit3} size={13} color={theme.orange} />Edit
+          </button>
+          <button onClick={() => setConfirmDelete(cls)}
+            style={{ flex: 1, background: theme.red + "15", border: `1.5px solid ${theme.red}33`, borderRadius: 9, padding: "8px", fontSize: 12, fontWeight: 700, color: theme.red, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            <Ic icon={Trash2} size={13} color={theme.red} />Delete
+          </button>
+        </div>
       </Card>
     );
   };
 
   return (
     <div style={{ padding: "0 16px 16px" }}>
-      <button onClick={() => setAdding(true)} style={{ width: "100%", background: `linear-gradient(135deg, ${theme.orange}, ${theme.orangeDark})`, color: "#fff", border: "none", borderRadius: 13, padding: "13px", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, fontFamily: "inherit", marginBottom: 16 }}>
+      <button onClick={openAdd}
+        style={{ width: "100%", background: `linear-gradient(135deg, ${theme.orange}, ${theme.orangeDark})`, color: "#fff", border: "none", borderRadius: 13, padding: "13px", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, fontFamily: "inherit", marginBottom: 16 }}>
         <Ic icon={Plus} size={16} color="#fff" />Schedule New Class
       </button>
+
+      {/* Delete confirmation dialog */}
+      {confirmDelete && (
+        <div style={{ background: theme.red + "10", border: `1.5px solid ${theme.red}33`, borderRadius: 14, padding: "14px", marginBottom: 14 }}>
+          <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>Delete this class?</p>
+          <p style={{ margin: "0 0 12px", fontSize: 12, color: theme.textMuted }}>
+            <strong>{confirmDelete.title}</strong> on {new Date(`${confirmDelete.date}T${confirmDelete.time}`).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })} will be removed from the student view.
+          </p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => { onDeleteClass(confirmDelete.id); setConfirmDelete(null); }}
+              style={{ flex: 1, background: theme.red, border: "none", borderRadius: 10, padding: "10px", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+              <Ic icon={Trash2} size={13} color="#fff" />Delete
+            </button>
+            <button onClick={() => setConfirmDelete(null)}
+              style={{ flex: 1, background: theme.surfaceAlt, border: `1.5px solid ${theme.border}`, borderRadius: 10, padding: "10px", color: theme.textMuted, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {scheduledClasses.length === 0 && (
+        <div style={{ textAlign: "center", padding: "36px 0", color: theme.textMuted }}>
+          <Ic icon={Calendar} size={36} color={theme.border} />
+          <p style={{ fontWeight: 700, marginTop: 8 }}>No classes scheduled yet</p>
+        </div>
+      )}
       {upcoming.length > 0 && <><SectionHeader title="Upcoming" icon={CalendarCheck} />{upcoming.map(c => <ClassCard key={c.id} cls={c} />)}</>}
       {past.length > 0 && <><SectionHeader title="Past Classes" icon={Clock} />{past.map(c => <ClassCard key={c.id} cls={c} />)}</>}
-      {scheduledClasses.length === 0 && <div style={{ textAlign: "center", padding: "36px 0", color: theme.textMuted }}><Ic icon={Calendar} size={36} color={theme.border} /><p style={{ fontWeight: 700, marginTop: 8 }}>No classes scheduled yet</p></div>}
     </div>
   );
 };
@@ -2240,6 +2336,8 @@ export default function App() {
 
   const publishQuiz = (q) => setQuizzesDb(prev => ({ ...prev, [q.id]: q }));
   const addClass = (cls) => setScheduledClasses(p => [{ ...cls, id: Date.now() }, ...p]);
+  const editClass = (updated) => setScheduledClasses(p => p.map(c => c.id === updated.id ? { ...updated } : c));
+  const deleteClass = (id) => setScheduledClasses(p => p.filter(c => c.id !== id));
   const addAssessment = (a) => setAssessmentsDb(p => [{ ...a, id: Date.now() }, ...p]);
   const editAssessment = (updated) => setAssessmentsDb(p => p.map(a => a.id === updated.id ? updated : a));
   const deleteAssessment = (id) => setAssessmentsDb(p => p.filter(a => a.id !== id));
@@ -2329,6 +2427,8 @@ export default function App() {
               onPublishQuiz={publishQuiz}
               scheduledClasses={scheduledClasses}
               onAddClass={addClass}
+              onEditClass={editClass}
+              onDeleteClass={deleteClass}
               onAddAssessment={addAssessment}
               onEditAssessment={editAssessment}
               onDeleteAssessment={deleteAssessment}
