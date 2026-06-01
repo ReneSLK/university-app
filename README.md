@@ -1,7 +1,5 @@
 # Unisa myModules
 
-A mobile-first university learning portal built with React, designed and optimised for Android and iOS. The app provides a unified platform for students and lecturers to manage modules, assessments, communication, and class scheduling.
-
 ---
 
 ## Features
