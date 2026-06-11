@@ -26,124 +26,127 @@ const MOCK_USERS = [
   { username: "prof.mokoena", password: "lecturer123", role: "lecturer" },
 ];
 
-const LECTURER_DATA = {
-  name: "Prof. A. Mokoena", id: "LEC2019-0031", avatar: "AM",
-  department: "School of Computing",
-  email: "a.mokoena@university.ac.za",
-  phone: "+27 12 420 3611",
-  officeHours: "Mon & Wed 13:00–15:00, Fri 10:00–12:00",
-  officeLocation: "IT Building, Room 6-14",
-  schoolEmail: "computing@university.ac.za",
-  schoolPhone: "+27 12 420 3000",
-  modules: [
-    {
-      id: 1, code: "COS301", name: "Software Engineering", students: 187,
-      color: "#FF6B00", quizEnabled: true,
-      description: "An in-depth study of software development methodologies, design patterns, UML modelling, and large-scale project management. Students work in teams to design and implement a full software system using agile practices.",
-    },
-    {
-      id: 2, code: "COS201", name: "Data Structures", students: 234,
-      color: "#2B6CB0", quizEnabled: true,
-      description: "Foundational data structures including arrays, linked lists, trees, graphs, and hash tables. Emphasis on algorithm analysis, time and space complexity, and practical implementation in Java.",
-    },
-  ],
-};
 
+// descriptionParts: array of { text, link? }
+// link can be "resources" | "studyMaterial" | "additionalResources" — tapped to open that section
 const BASE_STUDENT_MODULES = [
   {
-    id: 1, code: "COS301", name: "Software Engineering", lecturer: "Prof. A. Mokoena",
-    lecturerEmail: "a.mokoena@university.ac.za", lecturerOffice: "IT Building, Room 6-14",
-    credits: 16, color: "#FF6B00", progress: 72, nextClass: "Mon 08:00", quizEnabled: true,
-    description: "An in-depth study of software development methodologies, design patterns, UML modelling, and large-scale project management.",
+    id: 1, code: "COS1501-26-Y", name: "Theoretical Computer Science 1",
+    lecturer: "Prof. A. Mokoena",
+    lecturerEmail: "a.mokoena@unisa.ac.za", lecturerOffice: "Science Campus, Muckleneuk, Room 6-14",
+    credits: 12, color: "#FF6B00", progress: 45, nextClass: "Mon 09:00", quizEnabled: true,
+    description: "This module introduces the foundational concepts of theoretical computer science, focusing on sets, special types of sets, and the principles of mathematical logic. These building blocks form the basis of formal reasoning in computing and you will find that the deeper you engage with the material, the more intuitive it becomes.",
+    descriptionParts: [
+      { text: "This module introduces the foundational concepts of theoretical computer science, focusing on sets, special types of sets, and the principles of mathematical logic. There is no prescribed textbook — all you need is the " },
+      { text: "Study Guide", link: "studyMaterial" },
+      { text: ", available under " },
+      { text: "Official Study Material", link: "studyMaterial" },
+      { text: " in the left-hand menu, and also in " },
+      { text: "Additional Resources", link: "additionalResources" },
+      { text: ".\n\nAll tutorial letters are available under " },
+      { text: "Additional Resources", link: "additionalResources" },
+      { text: ". Tutorial Letter 102 contains the solutions to all self-assessment exercises in the Study Guide — work through these carefully. The latest study plan is also available under " },
+      { text: "Additional Resources", link: "additionalResources" },
+      { text: ".\n\nStatistics from previous years show that students who studied all the provided material and attempted every assessment consistently passed the module. The more you engage with this material, the easier it becomes." },
+    ],
     resources: [
-      { title: "Software Engineering (10th Ed.)", author: "Sommerville", type: "Textbook" },
-      { title: "Study Guide 2026", author: "Dept. of CS", type: "Study Guide" },
-      { title: "UML Distilled (3rd Ed.)", author: "Fowler", type: "Reference" },
-      { title: "Lecture Slides — Week 1–6", author: "Prof. Mokoena", type: "Slides" },
+      { title: "COS1501 Study Guide", author: "Unisa Dept. of Computing", type: "Study Guide", tag: "studyMaterial" },
+      { title: "Tutorial Letter 101", author: "Unisa Dept. of Computing", type: "Official Study Material", tag: "studyMaterial" },
+      { title: "Tutorial Letter 102 — Self-Assessment Solutions", author: "Unisa Dept. of Computing", type: "Additional Resources", tag: "additionalResources" },
+      { title: "Study Plan 2026", author: "Unisa Dept. of Computing", type: "Additional Resources", tag: "additionalResources" },
+      { title: "All Tutorial Letters", author: "Unisa Dept. of Computing", type: "Additional Resources", tag: "additionalResources" },
     ],
   },
   {
-    id: 2, code: "COS341", name: "Compiler Construction", lecturer: "Dr. S. Van Zyl",
-    lecturerEmail: "s.vanzyl@university.ac.za", lecturerOffice: "IT Building, Room 2-08",
-    credits: 16, color: "#E53E3E", progress: 58, nextClass: "Tue 10:15", quizEnabled: false,
-    description: "Covers the theory and practice of building compilers including lexical analysis, parsing, semantic analysis, and code generation.",
-    resources: [
-      { title: "Compilers: Principles, Techniques & Tools", author: "Aho et al.", type: "Textbook" },
-      { title: "COS341 Study Guide", author: "Dr. Van Zyl", type: "Study Guide" },
-      { title: "Past Test Papers (2022–2025)", author: "Dept. of CS", type: "Past Papers" },
+    id: 2, code: "COS1511-26-Y", name: "Introduction to Programming I",
+    lecturer: "Dr. S. Van Zyl",
+    lecturerEmail: "s.vanzyl@unisa.ac.za", lecturerOffice: "Science Campus, Muckleneuk, Room 2-08",
+    credits: 12, color: "#2B6CB0", progress: 38, nextClass: "Wed 11:00", quizEnabled: true,
+    description: "This module introduces programming using C++. You will need access to a computer with a C++ compiler and IDE installed. If installation is not possible, online compilers are a supported alternative.",
+    descriptionParts: [
+      { text: "This module introduces programming using C++. You will need access to a computer with a C++ compiler and IDE installed — see " },
+      { text: "Additional Resources", link: "additionalResources" },
+      { text: " and the latest announcements for software installation instructions. If you are unable to install C++ locally, online compilers are a fully supported alternative.\n\nTopics covered include:\n• Data and control structures\n• Problem-solving techniques and algorithm design\n• Input and output via standard streams\n• Data types: floating point, integer, character, string, Boolean, and one- and two-dimensional arrays\n• Decision and iteration structures: if, while, for, switch, and do…while\n• Functions with reference and value parameters, and structs\n\nNot all study material has been uploaded yet — additional resources will be made available under " },
+      { text: "Additional Resources", link: "additionalResources" },
+      { text: " at a later stage. Keep checking for updates." },
     ],
-  },
-  {
-    id: 3, code: "COS332", name: "Computer Networks", lecturer: "Prof. B. Nkosi",
-    lecturerEmail: "b.nkosi@university.ac.za", lecturerOffice: "IT Building, Room 3-22",
-    credits: 16, color: "#2B6CB0", progress: 85, nextClass: "Wed 12:30", quizEnabled: true,
-    description: "Explores the architecture and protocols of modern computer networks, covering the OSI and TCP/IP models, routing, transport protocols, and network security.",
     resources: [
-      { title: "Computer Networking: A Top-Down Approach", author: "Kurose & Ross", type: "Textbook" },
-      { title: "COS332 Module Guide", author: "Prof. Nkosi", type: "Study Guide" },
-      { title: "Wireshark Lab Exercises", author: "Dept. of CS", type: "Practicals" },
-    ],
-  },
-  {
-    id: 4, code: "IMY320", name: "Multimedia", lecturer: "Dr. C. Pretorius",
-    lecturerEmail: "c.pretorius@university.ac.za", lecturerOffice: "IT Building, Room 1-05",
-    credits: 16, color: "#00B86B", progress: 64, nextClass: "Thu 14:00", quizEnabled: false,
-    description: "Introduces multimedia systems design including digital audio, video, animation, and interactive media. Students explore UX design principles.",
-    resources: [
-      { title: "Multimedia: Making It Work (9th Ed.)", author: "Vaughan", type: "Textbook" },
-      { title: "IMY320 Study Guide", author: "Dr. Pretorius", type: "Study Guide" },
-      { title: "Adobe XD Fundamentals", author: "Adobe", type: "Online Resource" },
-    ],
-  },
-  {
-    id: 5, code: "COS201", name: "Data Structures", lecturer: "Prof. A. Mokoena",
-    lecturerEmail: "a.mokoena@university.ac.za", lecturerOffice: "IT Building, Room 6-14",
-    credits: 16, color: "#2B6CB0", progress: 70, nextClass: "Tue 14:00", quizEnabled: true,
-    description: "Foundational data structures including arrays, linked lists, trees, graphs, and hash tables. Emphasis on algorithm analysis and practical implementation.",
-    resources: [
-      { title: "Data Structures & Algorithms in Java", author: "Goodrich et al.", type: "Textbook" },
-      { title: "COS201 Study Guide", author: "Prof. Mokoena", type: "Study Guide" },
-      { title: "Practice Problem Sets", author: "Dept. of CS", type: "Past Papers" },
+      { title: "COS1511 Study Guide", author: "Unisa Dept. of Computing", type: "Study Guide", tag: "studyMaterial" },
+      { title: "Tutorial Letter 101", author: "Unisa Dept. of Computing", type: "Official Study Material", tag: "studyMaterial" },
+      { title: "C++ Software Installation Guide", author: "Unisa IT", type: "Additional Resources", tag: "additionalResources" },
+      { title: "Recommended Online Compilers", author: "Unisa Dept. of Computing", type: "Additional Resources", tag: "additionalResources" },
+      { title: "Tutorial Letters (uploaded progressively)", author: "Unisa Dept. of Computing", type: "Additional Resources", tag: "additionalResources" },
     ],
   },
 ];
 
 const BASE_ASSESSMENTS = [
-  { id: 1, module: "COS301", title: "Project Phase 2", type: "Project", due: "2026-04-28", weight: "30%", description: "Design and implement the second phase of your team software project.", venue: "Online Submission", instructions: "Submit as a single ZIP file. Include README.", attachments: [{ name: "Phase2_Requirements.pdf", size: "1.2 MB", type: "pdf" }], quizId: null, locked: false, releaseDate: null },
-  { id: 2, module: "COS341", title: "Test 2", type: "Test", due: "2026-04-25", weight: "20%", description: "Written test covering chapters 6–9: LR parsing, semantic analysis, and symbol tables.", venue: "IT Building Lecture Hall 1-3", instructions: "Bring your student card. Arrive 15 minutes early.", attachments: [{ name: "Test2_ScopeDocument.pdf", size: "210 KB", type: "pdf" }], quizId: null, locked: false, releaseDate: null },
-  { id: 3, module: "COS332", title: "Assignment 3", type: "Assignment", due: "2026-05-05", weight: "15%", description: "TCP/IP socket programming — implement a client-server chat application.", venue: "Online Submission", instructions: "Submit source code and a 2-page report.", attachments: [{ name: "Assignment3_Spec.pdf", size: "560 KB", type: "pdf" }], quizId: null, locked: false, releaseDate: null },
-  { id: 4, module: "IMY320", title: "Practical Exam", type: "Exam", due: "2026-05-15", weight: "40%", description: "3-hour practical exam. Design and prototype a multimedia interface.", venue: "Computer Lab 2, Engineering Building", instructions: "Bring your own software license. Templates provided.", attachments: [{ name: "PracticalExam_Brief.pdf", size: "730 KB", type: "pdf" }], quizId: null, locked: true, releaseDate: "2026-05-10" },
-  { id: 5, module: "COS301", title: "Test 1", type: "Test", due: "2026-04-10", weight: "20%", description: "Covered UML, requirements engineering, and agile methodologies (chapters 1–5).", venue: "IT Building Lecture Hall 1-3", instructions: "Closed-book test.", attachments: [{ name: "Test1_Memo.pdf", size: "180 KB", type: "pdf" }], quizId: "quiz_cos301_1", locked: false, releaseDate: null },
+  { id: 1, module: "COS1501-26-Y", title: "Assignment 01", type: "Assignment", due: "2026-05-15", weight: "10%", description: "Assignment covering sets, Venn diagrams, and basic set operations. Submit via myUnisa.", venue: "Online — myUnisa Submission", instructions: "Submit your completed answer file before the due date. Late submissions will not be accepted.", attachments: [{ name: "COS1501_Assignment01.pdf", size: "420 KB", type: "pdf" }], quizId: null, locked: false, releaseDate: null },
+  { id: 2, module: "COS1501-26-Y", title: "Assignment 02", type: "Assignment", due: "2026-06-10", weight: "10%", description: "Assignment covering propositional logic, truth tables, and logical equivalences from the Study Guide.", venue: "Online — myUnisa Submission", instructions: "Work through all questions. Show all steps clearly for partial marks.", attachments: [{ name: "COS1501_Assignment02.pdf", size: "380 KB", type: "pdf" }, { name: "Assignment02_Memo.pdf", size: "210 KB", type: "pdf" }], quizId: null, locked: true, releaseDate: "2026-06-05" },
+  { id: 3, module: "COS1511-26-Y", title: "Assignment 01", type: "Assignment", due: "2026-05-20", weight: "15%", description: "Practical programming assignment requiring a working C++ program. You must submit both the source code (.cpp) and a short explanation of your design decisions.", venue: "Online — myUnisa Submission", instructions: "Submit your .cpp source file. Ensure your program compiles without errors before submitting.", attachments: [{ name: "COS1511_Assignment01_Spec.pdf", size: "560 KB", type: "pdf" }, { name: "Starter_Template.cpp", size: "12 KB", type: "doc" }], quizId: null, locked: false, releaseDate: null },
+  { id: 4, module: "COS1511-26-Y", title: "Semester Test", type: "Test", due: "2026-07-08", weight: "25%", description: "Closed-book semester test covering all topics in the Study Guide up to and including functions and structs. The test will be written in the allocated computer lab.", venue: "Computer Lab — venue to be confirmed", instructions: "Bring your student card. Arrive at least 15 minutes early. No notes allowed.", attachments: [{ name: "SemesterTest_Scope.pdf", size: "180 KB", type: "pdf" }], quizId: "quiz_cos1511_1", locked: true, releaseDate: "2026-07-01" },
 ];
 
 const BASE_ANNOUNCEMENTS = [
-  { id: 1, module: "COS301", from: "Prof. A. Mokoena", message: "Project Phase 2 submission portal is now open on ClickUP. Please submit your UML diagrams along with your source code.", time: "2 hours ago", read: false },
-  { id: 2, module: "COS341", from: "Dr. S. Van Zyl", message: "Test 2 will cover chapters 6–9. Extra consultation slots available Friday 14:00–16:00 in IT Building Room 6-83.", time: "5 hours ago", read: false },
-  { id: 3, module: "ALL", from: "Faculty of IT", message: "Semester exam timetable has been published. Please check the student portal for your allocated venues.", time: "1 day ago", read: true },
-  { id: 4, module: "COS332", from: "Prof. B. Nkosi", message: "Lab session on Thursday is cancelled. A replacement session will be scheduled next week.", time: "2 days ago", read: true },
+  { id: 1, module: "COS1501-26-Y", from: "Prof. A. Mokoena", message: "Assignment 01 is now available on myUnisa. Make sure you download the question paper from Additional Resources and submit your answers before the due date.", time: "1 hour ago", read: false },
+  { id: 2, module: "COS1511-26-Y", from: "Dr. S. Van Zyl", message: "Software installation instructions for the C++ compiler and IDE have been uploaded to Additional Resources. If you are experiencing installation issues, please use an online compiler — links are provided in the same folder.", time: "3 hours ago", read: false },
+  { id: 3, module: "ALL", from: "School of Computing", message: "Welcome to the 2026 academic year. Please ensure all your modules are correctly registered on myUnisa. Study guides and Tutorial Letter 101 for all modules are now available.", time: "1 day ago", read: true },
+  { id: 4, module: "COS1501-26-Y", from: "Prof. A. Mokoena", message: "Tutorial Letter 102, which contains the solutions to all self-assessment exercises in the Study Guide, is now available under Additional Resources. Work through all exercises before attempting the assignment.", time: "2 days ago", read: true },
 ];
 
 const BASE_FORUMS = [
-  { id: 1, module: "COS301", topic: "Phase 2 Architecture Discussion", posts: 23, lastPost: "1 hr ago", pinned: true },
-  { id: 2, module: "COS341", topic: "Struggling with LR parsing?", posts: 14, lastPost: "3 hrs ago", pinned: false },
-  { id: 3, module: "COS332", topic: "TCP vs UDP — Practical differences", posts: 8, lastPost: "1 day ago", pinned: false },
+  { id: 1, module: "COS1501-26-Y", topic: "Sets and Venn Diagrams — Tips and Questions", posts: 18, lastPost: "30 min ago", pinned: true },
+  { id: 2, module: "COS1501-26-Y", topic: "Logic and Truth Tables — Where to start?", posts: 11, lastPost: "2 hrs ago", pinned: false },
+  { id: 3, module: "COS1511-26-Y", topic: "C++ Installation Help — Windows and Mac", posts: 27, lastPost: "1 hr ago", pinned: true },
+  { id: 4, module: "COS1511-26-Y", topic: "Understanding Arrays — Single vs Two-Dimensional", posts: 9, lastPost: "4 hrs ago", pinned: false },
 ];
 
 const INITIAL_QUIZZES = {
-  quiz_cos301_1: {
-    id: "quiz_cos301_1", title: "COS301 — Chapter 1–5 Practice Quiz", module: "COS301", createdBy: "Prof. A. Mokoena", locked: false, releaseDate: null,
+  quiz_cos1501_1: {
+    id: "quiz_cos1501_1", title: "COS1501 — Sets & Logic Self-Check", module: "COS1501-26-Y", createdBy: "Prof. A. Mokoena", locked: false, releaseDate: null,
     questions: [
-      { id: 1, text: "Which UML diagram best represents the runtime interaction between objects?", options: ["Class Diagram", "Sequence Diagram", "Use Case Diagram", "Component Diagram"], correct: 1 },
-      { id: 2, text: "In Agile, a 'Sprint' typically lasts:", options: ["1 day", "1–4 weeks", "3 months", "6 months"], correct: 1 },
-      { id: 3, text: "Which of the following is NOT a software requirement type?", options: ["Functional", "Non-functional", "Domain", "Binary"], correct: 3 },
+      { id: 1, text: "Which of the following correctly describes the intersection of sets A and B?", options: ["All elements in A or B", "All elements in both A and B", "All elements in A but not B", "All elements in neither A nor B"], correct: 1 },
+      { id: 2, text: "A proposition is:", options: ["Any sentence", "A sentence that is either true or false", "A question", "A command"], correct: 1 },
+      { id: 3, text: "The complement of a set A contains:", options: ["All elements in A", "All elements not in A (within the universal set)", "All elements in A and B", "Only empty sets"], correct: 1 },
+    ],
+  },
+  quiz_cos1511_1: {
+    id: "quiz_cos1511_1", title: "COS1511 — C++ Basics Self-Check", module: "COS1511-26-Y", createdBy: "Dr. S. Van Zyl", locked: true, releaseDate: "2026-07-01",
+    questions: [
+      { id: 1, text: "Which keyword is used to define a function that returns no value in C++?", options: ["null", "void", "empty", "none"], correct: 1 },
+      { id: 2, text: "A 'for' loop in C++ is best used when:", options: ["The number of iterations is unknown", "The number of iterations is known in advance", "You need to check a condition after executing", "You want to loop forever"], correct: 1 },
+      { id: 3, text: "Which of these is the correct way to declare a one-dimensional integer array of size 5 in C++?", options: ["int arr{5};", "array int[5];", "int arr[5];", "int[5] arr;"], correct: 2 },
     ],
   },
 };
 
 const INITIAL_CLASSES = [
-  { id: 1, module: "COS301", title: "Lecture — Design Patterns", date: "2026-04-28", time: "08:00", duration: "90", teamsLink: "https://teams.microsoft.com/l/meetup-join/placeholder1", recurring: "weekly" },
-  { id: 2, module: "COS201", title: "Tutorial — Sorting Algorithms", date: "2026-04-29", time: "10:15", duration: "60", teamsLink: "", recurring: "no" },
+  { id: 1, module: "COS1501-26-Y", title: "Live Tutorial — Sets and Set Operations", date: "2026-06-09", time: "09:00", duration: "60", teamsLink: "https://teams.microsoft.com/l/meetup-join/placeholder1", recurring: "weekly" },
+  { id: 2, module: "COS1511-26-Y", title: "Live Tutorial — C++ Loops and Arrays", date: "2026-06-11", time: "11:00", duration: "90", teamsLink: "https://teams.microsoft.com/l/meetup-join/placeholder2", recurring: "weekly" },
 ];
+
+const LECTURER_DATA = {
+  name: "Prof. A. Mokoena", id: "LEC2019-0031", avatar: "AM",
+  department: "School of Computing",
+  email: "a.mokoena@unisa.ac.za",
+  phone: "+27 12 429 3611",
+  officeHours: "Mon & Wed 13:00–15:00, Fri 10:00–12:00",
+  officeLocation: "Science Campus, Muckleneuk, Room 6-14",
+  schoolEmail: "computing@unisa.ac.za",
+  schoolPhone: "+27 12 429 3111",
+  modules: [
+    {
+      id: 1, code: "COS1501-26-Y", name: "Theoretical Computer Science 1", students: 1840,
+      color: "#FF6B00", quizEnabled: true,
+      description: "Sets, special types of sets, and the principles of mathematical logic. Students use the Study Guide exclusively — no prescribed textbook. Tutorial Letter 102 provides solutions to all self-assessment exercises.",
+    },
+    {
+      id: 2, code: "COS1511-26-Y", name: "Introduction to Programming I", students: 2310,
+      color: "#2B6CB0", quizEnabled: true,
+      description: "C++ programming covering data types, control structures, arrays, functions with reference and value parameters, and structs. Requires a C++ compiler — online compilers are a supported alternative.",
+    },
+  ],
+};
 
 // ─── LIVE DATE HOOK ───────────────────────────────────────────
 const computeStatus = (dueStr, today, locked, releaseDateStr) => {
@@ -179,7 +182,17 @@ const useLiveAssessments = (raw) => {
 const Ic = ({ icon: Icon, size = 18, color, style = {} }) => (
   <Icon size={size} color={color} style={{ flexShrink: 0, ...style }} strokeWidth={2} />
 );
-const resourceIcon = t => ({ Textbook: BookOpen, "Study Guide": FileText, Reference: BookMarked, Slides: BarChart2, Practicals: Microscope, "Online Resource": Globe, "Past Papers": ClipboardList }[t] || FileText);
+const resourceIcon = t => ({
+  Textbook: BookOpen,
+  "Study Guide": FileText,
+  "Official Study Material": BookMarked,
+  "Additional Resources": Package,
+  Reference: BookMarked,
+  Slides: BarChart2,
+  Practicals: Microscope,
+  "Online Resource": Globe,
+  "Past Papers": ClipboardList,
+}[t] || FileText);
 const fileIcon = t => ({ pdf: FileText, doc: FileText, zip: Package }[t] || Paperclip);
 const typeIcon = t => ({ Test: ClipboardList, Assignment: FileText, Project: Wrench, Exam: GraduationCap }[t] || ClipboardList);
 const STATUS_COLORS = { upcoming: theme.orange, urgent: theme.red, overdue: theme.darkRed, completed: theme.green, locked: theme.purple };
@@ -275,7 +288,7 @@ const LoginScreen = ({ onLogin }) => {
     }, 900);
   };
   return (
-    <div style={{ minHeight: "100vh", background: theme.offWhite, display: "flex", flexDirection: "column", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ minHeight: "100dvh", background: theme.offWhite, display: "flex", flexDirection: "column", fontFamily: "'Plus Jakarta Sans', sans-serif", overflowY: "scroll", WebkitOverflowScrolling: "touch" }}>
       <div style={{ background: `linear-gradient(135deg, ${theme.orange}, ${theme.orangeDark})`, padding: "52px 32px 64px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 14, position: "relative" }}>
@@ -682,7 +695,17 @@ const ModulesScreen = ({ data, quizzesDb, initialModule, scheduledClasses = [], 
   if (activeQuiz) return <QuizPlayer quiz={activeQuiz} onClose={() => setActiveQuiz(null)} />;
 
   if (selected) {
-    const typeColors = { Textbook: theme.blue, "Study Guide": theme.orange, Reference: theme.green, Slides: "#7B2FBE", Practicals: "#00A3A3", "Online Resource": "#D4A017", "Past Papers": theme.red };
+    const typeColors = {
+      Textbook: theme.blue,
+      "Study Guide": theme.orange,
+      "Official Study Material": theme.orange,
+      "Additional Resources": theme.green,
+      Reference: theme.green,
+      Slides: "#7B2FBE",
+      Practicals: "#00A3A3",
+      "Online Resource": "#D4A017",
+      "Past Papers": theme.red,
+    };
     const availableQuizzes = Object.values(quizzesDb).filter(q => q.module === selected.code && !q.locked);
     const moduleClasses = scheduledClasses.filter(c => c.module === selected.code).sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
     const moduleAssessments = allLiveAssessments.filter(a => a.module === selected.code && a.status !== "locked");
@@ -718,7 +741,22 @@ const ModulesScreen = ({ data, quizzesDb, initialModule, scheduledClasses = [], 
             <Ic icon={BookOpen} size={14} color={theme.orange} />
             <p style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 13, color: theme.textPrimary, margin: 0 }}>About</p>
           </div>
-          <p style={{ margin: 0, fontSize: 12, color: theme.textSecondary, lineHeight: 1.7 }}>{selected.description}</p>
+          {selected.descriptionParts ? (
+            <p style={{ margin: 0, fontSize: 12, color: theme.textSecondary, lineHeight: 1.9 }}>
+              {selected.descriptionParts.map((part, i) =>
+                part.link ? (
+                  <span key={i} onClick={() => setResourcesOpen(true)}
+                    style={{ color: theme.orange, fontWeight: 700, textDecoration: "underline", cursor: "pointer" }}>
+                    {part.text}
+                  </span>
+                ) : (
+                  <span key={i} style={{ whiteSpace: "pre-line" }}>{part.text}</span>
+                )
+              )}
+            </p>
+          ) : (
+            <p style={{ margin: 0, fontSize: 12, color: theme.textSecondary, lineHeight: 1.7 }}>{selected.description}</p>
+          )}
         </Card>
 
         <Card style={{ marginBottom: 12 }}>
@@ -1339,10 +1377,10 @@ const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, o
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div style={{ flex: 1, overflowY: "auto", paddingBottom: 80 }}>
+      <div style={{ flex: 1, overflowY: "scroll", overflowX: "hidden", WebkitOverflowScrolling: "touch", paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))", overscrollBehavior: "contain" }}>
         {renderLecturerContent()}
       </div>
-      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, flexShrink: 0, background: theme.white, borderTop: `1.5px solid ${theme.border}`, display: "flex", padding: "10px 0 14px", boxShadow: "0 -4px 20px rgba(0,0,0,0.06)", zIndex: 200 }}>
+      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, flexShrink: 0, background: theme.white, borderTop: `1.5px solid ${theme.border}`, display: "flex", paddingTop: 8, paddingBottom: "env(safe-area-inset-bottom, 10px)", boxShadow: "0 -4px 20px rgba(0,0,0,0.06)", zIndex: 200 }}>
         {lTabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{ flex: 1, background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "4px 0" }}>
@@ -2369,6 +2407,25 @@ export default function App() {
     link.rel = "stylesheet";
     link.href = "https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap";
     document.head.appendChild(link);
+
+    // iOS scroll fix — prevent body from scrolling behind the app shell
+    const style = document.createElement("style");
+    style.innerHTML = `
+      *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      html, body {
+        height: 100%; margin: 0; padding: 0;
+        overflow: hidden;
+        position: fixed; width: 100%;
+        overscroll-behavior: none;
+      }
+      #root { height: 100%; overflow: hidden; }
+    `;
+    document.head.appendChild(style);
+
+    // Ensure viewport meta is correct for iOS
+    let vp = document.querySelector("meta[name=viewport]");
+    if (!vp) { vp = document.createElement("meta"); vp.name = "viewport"; document.head.appendChild(vp); }
+    vp.content = "width=device-width, initial-scale=1, viewport-fit=cover";
   }, []);
 
   if (!role) return <LoginScreen onLogin={(r) => { setRole(r); setActiveTab(r === "student" ? "home" : "home"); }} />;
@@ -2402,8 +2459,30 @@ export default function App() {
   };
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: theme.offWhite, height: "100vh", maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", position: "relative", boxShadow: "0 0 60px rgba(0,0,0,0.15)", overflow: "hidden" }}>
-      <div style={{ background: `linear-gradient(135deg, ${theme.orange}, ${theme.orangeDark})`, padding: "15px 18px 13px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: `0 4px 20px ${theme.shadow}`, flexShrink: 0 }}>
+    <div style={{
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+      background: theme.offWhite,
+      // 100dvh accounts for iOS browser chrome correctly; falls back to 100vh
+      height: "100dvh",
+      maxWidth: 430,
+      margin: "0 auto",
+      display: "flex",
+      flexDirection: "column",
+      position: "relative",
+      boxShadow: "0 0 60px rgba(0,0,0,0.15)",
+      overflow: "hidden",
+      // Ensure it fills the real screen on iOS
+      WebkitOverflowScrolling: "touch",
+    }}>
+      {/* Orange header */}
+      <div style={{
+        background: `linear-gradient(135deg, ${theme.orange}, ${theme.orangeDark})`,
+        padding: "15px 18px 13px",
+        // Account for iPhone notch / status bar
+        paddingTop: "max(15px, env(safe-area-inset-top))",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        boxShadow: `0 4px 20px ${theme.shadow}`, flexShrink: 0,
+      }}>
         <div>
           <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 19, fontWeight: 800, margin: 0, color: "#fff" }}>{screenTitles[activeTab] || "Unisa myModules"}</h1>
           {role === "student" && <p style={{ margin: "1px 0 0", fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{studentData.id}</p>}
@@ -2418,7 +2497,21 @@ export default function App() {
         </div>
       </div>
 
-      <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", overflowX: "hidden", paddingTop: 14, paddingBottom: 20, WebkitOverflowScrolling: "touch" }}>
+      {/* Scrollable content */}
+      <div
+        ref={scrollRef}
+        style={{
+          flex: 1,
+          overflowY: "scroll",   // "scroll" not "auto" — forces momentum scrolling on iOS
+          overflowX: "hidden",
+          WebkitOverflowScrolling: "touch",
+          paddingTop: 14,
+          // Extra bottom padding so content isn't hidden behind fixed nav
+          paddingBottom: role === "student" ? "calc(80px + env(safe-area-inset-bottom, 0px))" : 24,
+          // Prevent scroll from leaking to body on iOS
+          overscrollBehavior: "contain",
+        }}
+      >
         {role === "student"
           ? renderStudent()
           : <LecturerDashboard
@@ -2444,8 +2537,19 @@ export default function App() {
         }
       </div>
 
+      {/* Student bottom nav */}
       {role === "student" && (
-        <div style={{ flexShrink: 0, background: theme.white, borderTop: `1.5px solid ${theme.border}`, display: "flex", padding: "10px 0 14px", boxShadow: "0 -4px 20px rgba(0,0,0,0.06)", zIndex: 100 }}>
+        <div style={{
+          flexShrink: 0,
+          background: theme.white,
+          borderTop: `1.5px solid ${theme.border}`,
+          display: "flex",
+          // Safe area for iPhone home bar
+          paddingBottom: "env(safe-area-inset-bottom, 8px)",
+          paddingTop: 8,
+          boxShadow: "0 -4px 20px rgba(0,0,0,0.06)",
+          zIndex: 100,
+        }}>
           {studentTabs.map(t => (
             <button key={t.id} onClick={() => navigateTo(t.id)}
               style={{ flex: 1, background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "4px 0" }}>
