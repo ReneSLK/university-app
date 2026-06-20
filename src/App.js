@@ -236,7 +236,7 @@ const FieldInput = ({ value, onChange, placeholder, type = "text", icon: Icon, r
   <div style={{ position: "relative" }}>
     {Icon && <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><Ic icon={Icon} size={15} color={theme.textMuted} /></div>}
     <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-      style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: Icon ? "12px 38px 12px 36px" : "12px 14px", fontSize: 14, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+      style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: Icon ? "12px 38px 12px 36px" : "12px 14px", fontSize: 16, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
       onFocus={e => e.target.style.borderColor = theme.orange} onBlur={e => e.target.style.borderColor = theme.border} />
     {rightEl && <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", cursor: "pointer" }}>{rightEl}</div>}
   </div>
@@ -245,26 +245,26 @@ const FieldInput = ({ value, onChange, placeholder, type = "text", icon: Icon, r
 // Lock toggle reusable component
 const LockToggle = ({ locked, onToggle, releaseDate, onReleaseChange }) => (
   <div style={{ background: theme.surfaceAlt, border: `1.5px solid ${locked ? theme.darkRed + "44" : theme.border}`, borderRadius: 12, padding: "14px", marginBottom: 14 }}>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: locked ? 12 : 0 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Ic icon={locked ? Lock : Lock} size={15} color={locked ? theme.darkRed : theme.textMuted} />
-        <div>
-          <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>Lock until release date</p>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: locked ? 12 : 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
+        <Ic icon={Lock} size={15} color={locked ? theme.darkRed : theme.textMuted} style={{ flexShrink: 0 }} />
+        <div style={{ minWidth: 0 }}>
+          <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: theme.textPrimary, whiteSpace: "nowrap" }}>Lock until release date</p>
           <p style={{ margin: 0, fontSize: 11, color: theme.textMuted }}>Hidden from students until unlocked</p>
         </div>
       </div>
-      <div onClick={onToggle} style={{ width: 42, height: 23, borderRadius: 12, background: locked ? theme.darkRed : theme.border, cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
-        <div style={{ width: 17, height: 17, borderRadius: 9, background: "#fff", position: "absolute", top: 3, left: locked ? 22 : 3, transition: "left 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
+      <div onClick={onToggle} style={{ width: 44, height: 24, borderRadius: 12, background: locked ? theme.darkRed : theme.border, cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
+        <div style={{ width: 18, height: 18, borderRadius: 9, background: "#fff", position: "absolute", top: 3, left: locked ? 23 : 3, transition: "left 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
       </div>
     </div>
     {locked && (
-      <>
-        <label style={{ fontSize: 11, fontWeight: 700, color: theme.darkRed, display: "block", marginBottom: 5, textTransform: "uppercase" }}>Release Date</label>
+      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+        <label style={{ fontSize: 11, fontWeight: 700, color: theme.darkRed, display: "block", marginBottom: 6, textTransform: "uppercase" }}>Release Date</label>
         <input type="date" value={releaseDate} onChange={e => onReleaseChange(e.target.value)}
-          style={{ width: "100%", border: `1.5px solid ${theme.darkRed}44`, borderRadius: 10, padding: "10px 12px", fontSize: 13, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+          style={{ width: "100%", border: `1.5px solid ${theme.darkRed}44`, borderRadius: 10, padding: "10px 12px", fontSize: 16, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
           onFocus={e => e.target.style.borderColor = theme.darkRed} onBlur={e => e.target.style.borderColor = theme.darkRed + "44"} />
-        <p style={{ fontSize: 11, color: theme.textMuted, margin: "5px 0 0" }}>Students see a locked card until this date.</p>
-      </>
+        <p style={{ fontSize: 11, color: theme.textMuted, margin: "6px 0 0" }}>Students see a locked card until this date.</p>
+      </div>
     )}
   </div>
 );
@@ -508,10 +508,10 @@ const AssessmentForm = ({ moduleOptions, onBack, onSave, editItem = null }) => {
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
         {[{ label: form.examMode ? "Exam Date" : "Due Date", field: "due", type: "date" }, { label: "Weight", field: "weight", type: "text", placeholder: "e.g. 30%" }].map(({ label, field, type, placeholder }) => (
-          <div key={field}>
+          <div key={field} style={{ display: "flex", flexDirection: "column" }}>
             <label style={{ fontSize: 12, fontWeight: 700, color: theme.textSecondary, display: "block", marginBottom: 5, textTransform: "uppercase" }}>{label}</label>
             <input type={type} value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} placeholder={placeholder}
-              style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: "11px 10px", fontSize: 13, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+              style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: "11px 12px", fontSize: 16, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit", flex: 1 }}
               onFocus={e => e.target.style.borderColor = theme.orange} onBlur={e => e.target.style.borderColor = theme.border} />
           </div>
         ))}
@@ -684,7 +684,7 @@ const HomeScreen = ({ data, onNavigate, scheduledClasses }) => {
 };
 
 // ─── STUDENT: MODULES SCREEN ──────────────────────────────────
-const ModulesScreen = ({ data, quizzesDb, initialModule, scheduledClasses = [], assessmentsDb = [] }) => {
+const ModulesScreen = ({ data, quizzesDb, initialModule, scheduledClasses = [], assessmentsDb = [], onNavigateToAssessments }) => {
   const [selected, setSelected] = useState(initialModule || null);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState(null);
@@ -827,12 +827,12 @@ const ModulesScreen = ({ data, quizzesDb, initialModule, scheduledClasses = [], 
 
         {moduleAssessments.length > 0 && (
           <div style={{ marginBottom: 12 }}>
-            <SectionHeader title="Assessments & Exams" icon={ClipboardList} />
+            <SectionHeader title="Assessments & Exams" icon={ClipboardList} action="See all" onAction={() => onNavigateToAssessments && onNavigateToAssessments()} />
             {moduleAssessments.map(a => {
               const TIcon = typeIcon(a.type);
               const sc = STATUS_COLORS[a.status] || theme.orange;
               return (
-                <Card key={a.id} style={{ marginBottom: 9, borderLeft: `4px solid ${sc}` }}>
+                <Card key={a.id} onClick={() => onNavigateToAssessments && onNavigateToAssessments()} style={{ marginBottom: 9, borderLeft: `4px solid ${sc}` }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <div style={{ width: 34, height: 34, borderRadius: 9, background: sc + "18", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <Ic icon={TIcon} size={16} color={sc} />
@@ -844,7 +844,10 @@ const ModulesScreen = ({ data, quizzesDb, initialModule, scheduledClasses = [], 
                         <Badge color={theme.textMuted}>{a.weight}</Badge>
                       </div>
                     </div>
-                    <p style={{ margin: 0, fontSize: 11, color: theme.textMuted, flexShrink: 0 }}>{new Date(a.due).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}</p>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <p style={{ margin: 0, fontSize: 11, color: theme.textMuted }}>{new Date(a.due).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}</p>
+                      <Ic icon={ChevronRight} size={13} color={theme.border} />
+                    </div>
                   </div>
                 </Card>
               );
@@ -958,13 +961,24 @@ const AssessmentsScreen = ({ data, quizzesDb }) => {
           <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 12, margin: 0 }}>Weight: {selected.weight}</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 12 }}>
-          <div style={{ background: theme.white, border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: "12px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 3 }}><Ic icon={Calendar} size={10} color={theme.textMuted} /><p style={{ margin: 0, fontSize: 10, color: theme.textMuted, fontWeight: 700, textTransform: "uppercase" }}>Due Date</p></div>
+          <div style={{ background: theme.white, border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 5 }}>
+              <Ic icon={Calendar} size={10} color={theme.textMuted} />
+              <p style={{ margin: 0, fontSize: 10, color: theme.textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>Due Date</p>
+            </div>
             <p style={{ margin: 0, fontWeight: 800, fontSize: 12, color: theme.textPrimary }}>{new Date(selected.due).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}</p>
           </div>
-          <div style={{ background: theme.white, border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: "12px" }}>
-            <p style={{ margin: "0 0 3px", fontSize: 10, color: theme.textMuted, fontWeight: 700, textTransform: "uppercase" }}>Status</p>
+          <div style={{ background: theme.white, border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: "12px 14px" }}>
+            <p style={{ margin: "0 0 5px", fontSize: 10, color: theme.textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>Status</p>
             <Badge color={sc}>{STATUS_LABELS[selected.status]}</Badge>
+          </div>
+          <div style={{ background: theme.white, border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: "12px 14px" }}>
+            <p style={{ margin: "0 0 5px", fontSize: 10, color: theme.textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>Weight</p>
+            <p style={{ margin: 0, fontWeight: 800, fontSize: 13, color: theme.textPrimary }}>{selected.weight}</p>
+          </div>
+          <div style={{ background: theme.white, border: `1.5px solid ${theme.border}`, borderRadius: 12, padding: "12px 14px" }}>
+            <p style={{ margin: "0 0 5px", fontSize: 10, color: theme.textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>Type</p>
+            <p style={{ margin: 0, fontWeight: 800, fontSize: 13, color: theme.textPrimary }}>{selected.type}</p>
           </div>
         </div>
         <Card style={{ marginBottom: 12 }}>
@@ -1070,7 +1084,7 @@ const AssessmentsScreen = ({ data, quizzesDb }) => {
 };
 
 // ─── STUDENT: ANNOUNCEMENTS ───────────────────────────────────
-const AnnouncementsScreen = ({ data }) => {
+const AnnouncementsScreen = ({ data, onMarkRead }) => {
   const [expanded, setExpanded] = useState({});
   const LIMIT = 100;
   return (
@@ -1079,22 +1093,52 @@ const AnnouncementsScreen = ({ data }) => {
         const isLong = a.message.length > LIMIT;
         const isOpen = expanded[a.id];
         return (
-          <Card key={a.id} style={{ marginBottom: 10, opacity: a.read ? 0.8 : 1, borderLeft: !a.read ? `4px solid ${theme.orange}` : undefined }}>
+          <Card key={a.id} style={{ marginBottom: 10, opacity: a.read ? 0.75 : 1, borderLeft: !a.read ? `4px solid ${theme.orange}` : `4px solid transparent` }}>
             <div style={{ display: "flex", gap: 10 }}>
               <Avatar initials={a.from.split(" ").map(w => w[0]).slice(-2).join("")} size={40} bg={a.read ? theme.textMuted : theme.orange} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
                   <span style={{ fontWeight: 800, fontSize: 12, color: theme.textPrimary }}>{a.from}</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}><Ic icon={Clock} size={10} color={theme.textMuted} /><span style={{ fontSize: 10, color: theme.textMuted }}>{a.time}</span></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                    <Ic icon={Clock} size={10} color={theme.textMuted} />
+                    <span style={{ fontSize: 10, color: theme.textMuted }}>{a.time}</span>
+                  </div>
                 </div>
-                <Badge color={theme.orange}>{a.module}</Badge>
-                <p style={{ margin: "7px 0 0", fontSize: 12, color: theme.textSecondary, lineHeight: 1.6 }}>{isLong && !isOpen ? a.message.slice(0, LIMIT) + "…" : a.message}</p>
-                {isLong && <span onClick={() => setExpanded(e => ({ ...e, [a.id]: !e[a.id] }))} style={{ fontSize: 11, color: theme.orange, fontWeight: 700, cursor: "pointer", marginTop: 3, display: "inline-flex", alignItems: "center", gap: 3 }}><Ic icon={isOpen ? ChevronUp : ChevronDown} size={12} color={theme.orange} />{isOpen ? "Show less" : "Read more"}</span>}
+                <div style={{ display: "flex", gap: 5, alignItems: "center", marginBottom: 5, flexWrap: "wrap" }}>
+                  <Badge color={theme.orange}>{a.module}</Badge>
+                  {!a.read && <Badge color={theme.orange}>New</Badge>}
+                </div>
+                <p style={{ margin: "0 0 6px", fontSize: 12, color: theme.textSecondary, lineHeight: 1.6 }}>
+                  {isLong && !isOpen ? a.message.slice(0, LIMIT) + "…" : a.message}
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  {isLong && (
+                    <span onClick={() => setExpanded(e => ({ ...e, [a.id]: !e[a.id] }))}
+                      style={{ fontSize: 11, color: theme.orange, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                      <Ic icon={isOpen ? ChevronUp : ChevronDown} size={12} color={theme.orange} />
+                      {isOpen ? "Show less" : "Read more"}
+                    </span>
+                  )}
+                  {!a.read && (
+                    <span onClick={() => onMarkRead(a.id)}
+                      style={{ fontSize: 11, color: theme.green, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                      <Ic icon={CheckCircle} size={12} color={theme.green} />
+                      Mark as read
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
         );
       })}
+      {data.announcements.every(a => a.read) && (
+        <div style={{ textAlign: "center", padding: "32px 0", color: theme.textMuted }}>
+          <Ic icon={CheckCircle} size={32} color={theme.green} />
+          <p style={{ fontWeight: 700, marginTop: 8, fontSize: 13 }}>All caught up!</p>
+          <p style={{ fontSize: 12, marginTop: 3 }}>No unread announcements</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -1335,19 +1379,19 @@ const LecturerField = ({ label, children }) => (
 );
 const LecturerSelect = ({ value, onChange, options, placeholder }) => (
   <select value={value} onChange={e => onChange(e.target.value)}
-    style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 11, padding: "10px 12px", fontSize: 13, background: theme.offWhite, color: value ? theme.textPrimary : theme.textMuted, outline: "none", fontFamily: "inherit" }}>
+    style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 11, padding: "10px 12px", fontSize: 16, background: theme.offWhite, color: value ? theme.textPrimary : theme.textMuted, outline: "none", fontFamily: "inherit" }}>
     <option value="">{placeholder}</option>
     {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
   </select>
 );
 const LecturerTextInput = ({ value, onChange, placeholder, type = "text" }) => (
   <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-    style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 11, padding: "10px 12px", fontSize: 13, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+    style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 11, padding: "10px 12px", fontSize: 16, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
     onFocus={e => e.target.style.borderColor = theme.orange} onBlur={e => e.target.style.borderColor = theme.border} />
 );
 const LecturerTextArea = ({ value, onChange, placeholder, rows = 4 }) => (
   <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows}
-    style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 11, padding: "10px 12px", fontSize: 13, background: theme.offWhite, color: theme.textPrimary, outline: "none", resize: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+    style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 11, padding: "10px 12px", fontSize: 16, background: theme.offWhite, color: theme.textPrimary, outline: "none", resize: "none", boxSizing: "border-box", fontFamily: "inherit" }}
     onFocus={e => e.target.style.borderColor = theme.orange} onBlur={e => e.target.style.borderColor = theme.border} />
 );
 
@@ -1367,7 +1411,7 @@ const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, o
   const renderLecturerContent = () => {
     switch (tab) {
       case "home": return <LecturerHome data={data} scheduledClasses={scheduledClasses} assessmentsDb={assessmentsDb} announcementsDb={announcementsDb} onNavigate={setTab} onUpdateContact={onUpdateContact} />;
-      case "modules": return <LecturerModules data={data} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} moduleOptions={moduleOptions} assessmentsDb={assessmentsDb} onAddModule={onAddModule} />;
+      case "modules": return <LecturerModules data={data} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} moduleOptions={moduleOptions} assessmentsDb={assessmentsDb} onAddModule={onAddModule} onNavigateToAssessments={() => setTab("assessments")} />;
       case "assessments": return <LecturerAssessments data={data} assessmentsDb={assessmentsDb} moduleOptions={moduleOptions} onAdd={onAddAssessment} onEdit={onEditAssessment} onDelete={onDeleteAssessment} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} />;
       case "classes": return <LecturerClasses data={data} scheduledClasses={scheduledClasses} moduleOptions={moduleOptions} onAdd={onAddClass} onEditClass={onEditClass} onDeleteClass={onDeleteClass} />;
       case "announcements": return <LecturerAnnouncements data={data} announcementsDb={announcementsDb} forumsDb={forumsDb} moduleOptions={moduleOptions} onAdd={onAddAnnouncement} onAddForumPost={onAddForumPost} threadReplies={threadReplies} />;
@@ -1588,7 +1632,7 @@ const LecturerHome = ({ data, scheduledClasses, assessmentsDb, announcementsDb, 
 
 // Lecturer Modules
 const MODULE_COLORS = ["#FF6B00", "#2B6CB0", "#E53E3E", "#00B86B", "#7B2FBE", "#D4A017", "#00A3A3", "#C05621"];
-const LecturerModules = ({ data, quizzesDb, onPublishQuiz, moduleOptions, assessmentsDb, onAddModule }) => {
+const LecturerModules = ({ data, quizzesDb, onPublishQuiz, moduleOptions, assessmentsDb, onAddModule, onNavigateToAssessments }) => {
   const [selected, setSelected] = useState(null);
   const [buildingQuiz, setBuildingQuiz] = useState(null);
   const [editingQuiz, setEditingQuiz] = useState(null);
@@ -1753,15 +1797,20 @@ const LecturerModules = ({ data, quizzesDb, onPublishQuiz, moduleOptions, assess
         </div>
         {moduleAssessments.length > 0 && (
           <>
-            <SectionHeader title="Assessments & Exams" icon={ClipboardList} />
+            <SectionHeader title="Assessments & Exams" icon={ClipboardList} action="See all" onAction={() => onNavigateToAssessments && onNavigateToAssessments()} />
             {moduleAssessments.map(a => (
-              <Card key={a.id} style={{ marginBottom: 9, borderLeft: `4px solid ${a.locked ? theme.darkRed : theme.orange}` }}>
-                <div style={{ display: "flex", gap: 5, marginBottom: 4 }}>
-                  <Badge color={theme.orange}>{a.type}</Badge>
-                  {a.locked && <Badge color={theme.darkRed}><Ic icon={Lock} size={9} color={theme.darkRed} />Locked</Badge>}
+              <Card key={a.id} onClick={() => onNavigateToAssessments && onNavigateToAssessments()} style={{ marginBottom: 9, borderLeft: `4px solid ${a.locked ? theme.darkRed : theme.orange}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", gap: 5, marginBottom: 4, flexWrap: "wrap" }}>
+                      <Badge color={theme.orange}>{a.type}</Badge>
+                      {a.locked && <Badge color={theme.darkRed}><Ic icon={Lock} size={9} color={theme.darkRed} />Locked</Badge>}
+                    </div>
+                    <p style={{ margin: "0 0 2px", fontWeight: 700, fontSize: 12, color: theme.textPrimary }}>{a.title}</p>
+                    <p style={{ margin: 0, fontSize: 11, color: theme.textMuted }}>Due: {new Date(a.due).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })} · {a.weight}</p>
+                  </div>
+                  <Ic icon={ChevronRight} size={15} color={theme.border} style={{ marginLeft: 8, flexShrink: 0 }} />
                 </div>
-                <p style={{ margin: "0 0 2px", fontWeight: 700, fontSize: 12, color: theme.textPrimary }}>{a.title}</p>
-                <p style={{ margin: 0, fontSize: 11, color: theme.textMuted }}>Due: {new Date(a.due).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })} · {a.weight}</p>
               </Card>
             ))}
           </>
@@ -2076,6 +2125,7 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
   const [forumForm, setForumForm] = useState({ module: "", topic: "", content: "", links: [""] });
   const lecturerAnnouncements = announcementsDb.filter(a => a.isLecturer);
   const lecturerForumPosts = (forumsDb || []).filter(f => f.isLecturer);
+  const allForumThreads = (forumsDb || []);
 
   // Thread detail view — lecturer reads student replies
   if (view === "thread" && selectedThread) {
@@ -2277,7 +2327,7 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
       </div>
 
       {/* Sent announcements */}
-      {lecturerAnnouncements.length === 0 && lecturerForumPosts.length === 0 && (
+      {lecturerAnnouncements.length === 0 && allForumThreads.length === 0 && (
         <div style={{ textAlign: "center", padding: "36px 0", color: theme.textMuted }}>
           <Ic icon={Megaphone} size={36} color={theme.border} />
           <p style={{ fontWeight: 700, marginTop: 8 }}>Nothing sent yet</p>
@@ -2304,18 +2354,21 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
         </>
       )}
 
-      {lecturerForumPosts.length > 0 && (
+      {allForumThreads.length > 0 && (
         <>
-          <SectionHeader title="Forum Posts" icon={MessageSquare} />
-          {lecturerForumPosts.map(f => {
+          <SectionHeader title="Forum Threads" icon={MessageSquare} />
+          {allForumThreads.map(f => {
             const replyCount = (threadReplies?.[f.id] || []).length;
+            const borderColor = f.isLecturer ? theme.blue : theme.textMuted;
             return (
-              <Card key={f.id} onClick={() => { setSelectedThread(f); setView("thread"); }} style={{ marginBottom: 10, borderLeft: `4px solid ${theme.blue}` }}>
+              <Card key={f.id} onClick={() => { setSelectedThread(f); setView("thread"); }} style={{ marginBottom: 10, borderLeft: `4px solid ${borderColor}` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", gap: 5, marginBottom: 5 }}>
-                      <Badge color={theme.blue}>{f.module}</Badge>
-                      <Badge color={theme.blue}>Forum Thread</Badge>
+                    <div style={{ display: "flex", gap: 5, marginBottom: 5, flexWrap: "wrap" }}>
+                      <Badge color={borderColor}>{f.module}</Badge>
+                      {f.isLecturer
+                        ? <Badge color={theme.blue}>Your Post</Badge>
+                        : <Badge color={theme.textMuted}>Student Thread</Badge>}
                       {replyCount > 0 && <Badge color={theme.green}>{replyCount} repl{replyCount !== 1 ? "ies" : "y"}</Badge>}
                     </div>
                     <p style={{ margin: "0 0 3px", fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{f.topic}</p>
@@ -2337,7 +2390,7 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 7, paddingTop: 7, borderTop: `1px solid ${theme.border}` }}>
                   <Ic icon={MessageSquare} size={11} color={theme.textMuted} />
-                  <span style={{ fontSize: 11, color: theme.textMuted }}>{1 + replyCount} post{1 + replyCount !== 1 ? "s" : ""} · {f.lastPost} · tap to view replies</span>
+                  <span style={{ fontSize: 11, color: theme.textMuted }}>{f.posts + replyCount} post{f.posts + replyCount !== 1 ? "s" : ""} · {f.lastPost} · tap to view</span>
                 </div>
               </Card>
             );
@@ -2380,6 +2433,7 @@ export default function App() {
   const editAssessment = (updated) => setAssessmentsDb(p => p.map(a => a.id === updated.id ? updated : a));
   const deleteAssessment = (id) => setAssessmentsDb(p => p.filter(a => a.id !== id));
   const addAnnouncement = (a) => setAnnouncementsDb(p => [a, ...p]);
+  const markAnnouncementRead = (id) => setAnnouncementsDb(p => p.map(a => a.id === id ? { ...a, read: true } : a));
   const addReply = (threadId, reply) => setThreadReplies(prev => ({
     ...prev,
     [threadId]: [...(prev[threadId] || []), { ...reply, id: Date.now() }],
@@ -2419,6 +2473,8 @@ export default function App() {
         overscroll-behavior: none;
       }
       #root { height: 100%; overflow: hidden; }
+      /* iOS auto-zoom fix: inputs must be at least 16px to prevent zoom on focus */
+      input, textarea, select { font-size: 16px !important; }
     `;
     document.head.appendChild(style);
 
@@ -2450,9 +2506,9 @@ export default function App() {
   const renderStudent = () => {
     switch (activeTab) {
       case "home": return <HomeScreen data={studentData} onNavigate={navigateTo} scheduledClasses={scheduledClasses} />;
-      case "modules": return <ModulesScreen data={studentData} quizzesDb={quizzesDb} initialModule={moduleDeepLink} scheduledClasses={scheduledClasses} assessmentsDb={assessmentsDb} />;
+      case "modules": return <ModulesScreen data={studentData} quizzesDb={quizzesDb} initialModule={moduleDeepLink} scheduledClasses={scheduledClasses} assessmentsDb={assessmentsDb} onNavigateToAssessments={() => navigateTo("assessments")} />;
       case "assessments": return <AssessmentsScreen data={studentData} quizzesDb={quizzesDb} />;
-      case "announcements": return <AnnouncementsScreen data={studentData} />;
+      case "announcements": return <AnnouncementsScreen data={studentData} onMarkRead={markAnnouncementRead} />;
       case "forums": return <ForumsScreen data={studentData} threadReplies={threadReplies} onAddReply={addReply} />;
       default: return null;
     }
