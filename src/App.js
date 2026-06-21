@@ -1396,7 +1396,7 @@ const LecturerTextArea = ({ value, onChange, placeholder, rows = 4 }) => (
 );
 
 // ─── LECTURER: MAIN DASHBOARD ────────────────────────────────
-const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, onAddClass, onEditClass, onDeleteClass, onAddAssessment, onEditAssessment, onDeleteAssessment, assessmentsDb, announcementsDb, onAddAnnouncement, forumsDb, onAddForumPost, onAddModule, onUpdateContact, threadReplies }) => {
+const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, onAddClass, onEditClass, onDeleteClass, onAddAssessment, onEditAssessment, onDeleteAssessment, assessmentsDb, announcementsDb, onAddAnnouncement, forumsDb, onAddForumPost, onAddModule, onUpdateContact, threadReplies, onAddReply }) => {
   const [tab, setTab] = useState("home");
   const lTabs = [
     { id: "home", icon: LayoutDashboard, label: "Home" },
@@ -1414,7 +1414,7 @@ const LecturerDashboard = ({ data, quizzesDb, onPublishQuiz, scheduledClasses, o
       case "modules": return <LecturerModules data={data} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} moduleOptions={moduleOptions} assessmentsDb={assessmentsDb} onAddModule={onAddModule} onNavigateToAssessments={() => setTab("assessments")} />;
       case "assessments": return <LecturerAssessments data={data} assessmentsDb={assessmentsDb} moduleOptions={moduleOptions} onAdd={onAddAssessment} onEdit={onEditAssessment} onDelete={onDeleteAssessment} quizzesDb={quizzesDb} onPublishQuiz={onPublishQuiz} />;
       case "classes": return <LecturerClasses data={data} scheduledClasses={scheduledClasses} moduleOptions={moduleOptions} onAdd={onAddClass} onEditClass={onEditClass} onDeleteClass={onDeleteClass} />;
-      case "announcements": return <LecturerAnnouncements data={data} announcementsDb={announcementsDb} forumsDb={forumsDb} moduleOptions={moduleOptions} onAdd={onAddAnnouncement} onAddForumPost={onAddForumPost} threadReplies={threadReplies} />;
+      case "announcements": return <LecturerAnnouncements data={data} announcementsDb={announcementsDb} forumsDb={forumsDb} moduleOptions={moduleOptions} onAdd={onAddAnnouncement} onAddForumPost={onAddForumPost} threadReplies={threadReplies} onAddReply={onAddReply} />;
       default: return null;
     }
   };
@@ -2118,23 +2118,42 @@ const LecturerClasses = ({ data, scheduledClasses, moduleOptions, onAdd, onEditC
 };
 
 // Lecturer Announcements
-const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions, onAdd, onAddForumPost, threadReplies }) => {
-  const [view, setView] = useState("list"); // list | announcement | forum | thread
+const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions, onAdd, onAddForumPost, threadReplies, onAddReply }) => {
+  const [view, setView] = useState("list");
   const [selectedThread, setSelectedThread] = useState(null);
   const [annForm, setAnnForm] = useState({ module: "", title: "", message: "" });
   const [forumForm, setForumForm] = useState({ module: "", topic: "", content: "", links: [""] });
+  const [replyText, setReplyText] = useState("");
+  const [replyLinks, setReplyLinks] = useState([]);
+  const [newReplyLink, setNewReplyLink] = useState("");
+  const [showReplyLinks, setShowReplyLinks] = useState(false);
   const lecturerAnnouncements = announcementsDb.filter(a => a.isLecturer);
   const lecturerForumPosts = (forumsDb || []).filter(f => f.isLecturer);
   const allForumThreads = (forumsDb || []);
 
-  // Thread detail view — lecturer reads student replies
+  const handleSendReply = () => {
+    if (!replyText.trim() && replyLinks.length === 0) return;
+    onAddReply(selectedThread.id, {
+      user: data.name,
+      author: data.name,
+      avatar: data.avatar,
+      isLecturer: true,
+      time: "Just now",
+      text: replyText.trim(),
+      links: replyLinks.filter(l => l.trim()),
+      attachments: [],
+    });
+    setReplyText(""); setReplyLinks([]); setNewReplyLink(""); setShowReplyLinks(false);
+  };
+
+  // Thread detail view — lecturer can read all replies and reply themselves
   if (view === "thread" && selectedThread) {
     const replies = threadReplies?.[selectedThread.id] || [];
-    const mod = null; // colour from thread module
-    const modColor = theme.blue;
+    const totalPosts = 1 + replies.length;
     return (
       <div style={{ padding: "0 16px 16px" }}>
-        <BackButton onClick={() => { setView("list"); setSelectedThread(null); }} label="Back to Updates" />
+        <BackButton onClick={() => { setView("list"); setSelectedThread(null); setReplyText(""); setReplyLinks([]); setShowReplyLinks(false); }} label="Back to Updates" />
+
         {/* Thread header */}
         <div style={{ background: `linear-gradient(135deg, ${theme.blue}, #1A4A80)`, borderRadius: 18, padding: "16px 18px", marginBottom: 14, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -14, right: -14, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
@@ -2145,53 +2164,60 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
           <h3 style={{ fontFamily: "'Sora', sans-serif", color: "#fff", fontSize: 15, fontWeight: 800, margin: "0 0 4px" }}>{selectedThread.topic}</h3>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <Ic icon={MessageSquare} size={11} color="rgba(255,255,255,0.7)" />
-            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: 0 }}>{1 + replies.length} post{1 + replies.length !== 1 ? "s" : ""}</p>
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: 0 }}>{totalPosts} post{totalPosts !== 1 ? "s" : ""}</p>
           </div>
         </div>
 
-        {/* Opening post (lecturer) */}
-        <Card style={{ marginBottom: 10, borderLeft: `4px solid ${theme.orange}` }}>
-          <div style={{ display: "flex", gap: 9 }}>
-            <Avatar initials={data.avatar} size={36} bg={theme.orange} />
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
-                <span style={{ fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{data.name}</span>
-                <Badge color={theme.orange}>Lecturer</Badge>
-                <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                  <Ic icon={Clock} size={10} color={theme.textMuted} />
-                  <span style={{ fontSize: 10, color: theme.textMuted }}>{selectedThread.lastPost}</span>
+        {/* Opening post */}
+        {selectedThread.openingPost && (
+          <Card style={{ marginBottom: 10, borderLeft: `4px solid ${theme.orange}` }}>
+            <div style={{ display: "flex", gap: 9 }}>
+              <Avatar initials={data.avatar} size={36} bg={theme.orange} />
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{selectedThread.openingPost.user || data.name}</span>
+                  <Badge color={theme.orange}>Lecturer</Badge>
+                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                    <Ic icon={Clock} size={10} color={theme.textMuted} />
+                    <span style={{ fontSize: 10, color: theme.textMuted }}>{selectedThread.openingPost.time || selectedThread.lastPost}</span>
+                  </div>
                 </div>
+                <p style={{ margin: "0 0 8px", fontSize: 13, color: theme.textSecondary, lineHeight: 1.6 }}>{selectedThread.openingPost.text}</p>
+                {selectedThread.openingPost.links?.filter(l => l.trim()).map((link, i) => (
+                  <a key={i} href={link} target="_blank" rel="noopener noreferrer"
+                    style={{ display: "flex", alignItems: "center", gap: 6, background: theme.blue + "12", border: `1.5px solid ${theme.blue}33`, borderRadius: 8, padding: "6px 10px", textDecoration: "none", marginBottom: 5 }}>
+                    <Ic icon={Link2} size={11} color={theme.blue} />
+                    <span style={{ fontSize: 11, fontWeight: 600, color: theme.blue, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link}</span>
+                    <Ic icon={ArrowRight} size={10} color={theme.blue} />
+                  </a>
+                ))}
               </div>
-              <p style={{ margin: "0 0 8px", fontSize: 13, color: theme.textSecondary, lineHeight: 1.6 }}>{selectedThread.openingPost?.text}</p>
-              {selectedThread.openingPost?.links?.filter(l => l.trim()).map((link, i) => (
-                <a key={i} href={link} target="_blank" rel="noopener noreferrer"
-                  style={{ display: "flex", alignItems: "center", gap: 6, background: theme.blue + "12", border: `1.5px solid ${theme.blue}33`, borderRadius: 8, padding: "6px 10px", textDecoration: "none", marginBottom: 5 }}>
-                  <Ic icon={Link2} size={11} color={theme.blue} />
-                  <span style={{ fontSize: 11, fontWeight: 600, color: theme.blue, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link}</span>
-                  <Ic icon={ArrowRight} size={10} color={theme.blue} />
-                </a>
-              ))}
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
-        {/* Student replies */}
+        {/* Replies */}
         {replies.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "24px 0", color: theme.textMuted }}>
-            <Ic icon={MessageSquare} size={28} color={theme.border} />
-            <p style={{ fontWeight: 600, fontSize: 13, marginTop: 7 }}>No student replies yet</p>
-            <p style={{ fontSize: 11, marginTop: 3, color: theme.textMuted }}>Students can reply from their Forums tab</p>
+          <div style={{ textAlign: "center", padding: "20px 0", color: theme.textMuted }}>
+            <Ic icon={MessageSquare} size={26} color={theme.border} />
+            <p style={{ fontWeight: 600, fontSize: 13, marginTop: 7 }}>No replies yet</p>
+            <p style={{ fontSize: 11, marginTop: 3 }}>Be the first to reply below</p>
           </div>
         ) : (
           replies.map((reply, i) => (
-            <Card key={reply.id || i} style={{ marginBottom: 9 }}>
+            <Card key={reply.id || i} style={{ marginBottom: 9, borderLeft: reply.isLecturer ? `4px solid ${theme.orange}` : undefined }}>
               <div style={{ display: "flex", gap: 9 }}>
-                <Avatar initials={(reply.author || reply.user || "S").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase()} size={34} bg={theme.blue} />
+                <Avatar
+                  initials={(reply.author || reply.user || "S").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
+                  size={34}
+                  bg={reply.isLecturer ? theme.orange : theme.blue}
+                />
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 3, flexWrap: "wrap" }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ fontWeight: 700, fontSize: 13, color: theme.textPrimary }}>{reply.author || reply.user || "Student"}</span>
-                      {reply.studentId && (
+                      {reply.isLecturer && <Badge color={theme.orange} style={{ marginLeft: 6 }}>Lecturer</Badge>}
+                      {!reply.isLecturer && reply.studentId && (
                         <span style={{ fontSize: 10, color: theme.textMuted, marginLeft: 6, fontWeight: 600 }}>· {reply.studentId}</span>
                       )}
                     </div>
@@ -2200,7 +2226,7 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
                       <span style={{ fontSize: 10, color: theme.textMuted }}>{reply.time || "Just now"}</span>
                     </div>
                   </div>
-                  <p style={{ margin: "0 0 6px", fontSize: 12, color: theme.textSecondary, lineHeight: 1.6 }}>{reply.text}</p>
+                  {reply.text && <p style={{ margin: "0 0 6px", fontSize: 12, color: theme.textSecondary, lineHeight: 1.6 }}>{reply.text}</p>}
                   {reply.links?.filter(l => l?.trim()).map((link, li) => (
                     <a key={li} href={link} target="_blank" rel="noopener noreferrer"
                       style={{ display: "flex", alignItems: "center", gap: 6, background: theme.blue + "12", border: `1.5px solid ${theme.blue}33`, borderRadius: 8, padding: "6px 10px", textDecoration: "none", marginBottom: 5 }}>
@@ -2219,6 +2245,59 @@ const LecturerAnnouncements = ({ data, announcementsDb, forumsDb, moduleOptions,
             </Card>
           ))
         )}
+
+        {/* Lecturer reply composer */}
+        <div style={{ background: theme.white, border: `1.5px solid ${theme.border}`, borderRadius: 16, padding: "14px", marginTop: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <Avatar initials={data.avatar} size={30} bg={theme.orange} />
+            <span style={{ fontWeight: 700, fontSize: 12, color: theme.textSecondary }}>Reply as lecturer</span>
+          </div>
+          <textarea
+            value={replyText}
+            onChange={e => setReplyText(e.target.value)}
+            placeholder="Write your reply to students..."
+            rows={3}
+            style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 11, padding: "10px 12px", fontSize: 16, background: theme.offWhite, color: theme.textPrimary, outline: "none", resize: "none", boxSizing: "border-box", fontFamily: "inherit", marginBottom: 10 }}
+            onFocus={e => e.target.style.borderColor = theme.orange} onBlur={e => e.target.style.borderColor = theme.border}
+          />
+
+          {/* Optional links */}
+          {showReplyLinks && (
+            <div style={{ marginBottom: 10 }}>
+              {replyLinks.map((link, i) => (
+                <div key={i} style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 7 }}>
+                  <div style={{ position: "relative", flex: 1 }}>
+                    <div style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
+                      <Ic icon={Link2} size={13} color={theme.textMuted} />
+                    </div>
+                    <input value={link} onChange={e => { const u = [...replyLinks]; u[i] = e.target.value; setReplyLinks(u); }} placeholder="https://..."
+                      style={{ width: "100%", border: `1.5px solid ${theme.border}`, borderRadius: 10, padding: "9px 12px 9px 30px", fontSize: 16, background: theme.offWhite, color: theme.textPrimary, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+                      onFocus={e => e.target.style.borderColor = theme.blue} onBlur={e => e.target.style.borderColor = theme.border} />
+                  </div>
+                  <button onClick={() => setReplyLinks(l => l.filter((_, idx) => idx !== i))}
+                    style={{ background: theme.red + "18", border: `1.5px solid ${theme.red}33`, borderRadius: 8, padding: "8px", cursor: "pointer", display: "flex", alignItems: "center" }}>
+                    <Ic icon={Trash2} size={13} color={theme.red} />
+                  </button>
+                </div>
+              ))}
+              <button onClick={() => setReplyLinks(l => [...l, ""])}
+                style={{ background: "transparent", border: `1.5px dashed ${theme.blue}`, borderRadius: 9, padding: "7px 12px", fontSize: 12, fontWeight: 700, color: theme.blue, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
+                <Ic icon={Plus} size={12} color={theme.blue} />Add link
+              </button>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => { setShowReplyLinks(s => !s); if (!showReplyLinks && replyLinks.length === 0) setReplyLinks([""]); }}
+              style={{ background: showReplyLinks ? theme.blue + "18" : theme.surfaceAlt, border: `1.5px solid ${showReplyLinks ? theme.blue + "44" : theme.border}`, borderRadius: 10, padding: "9px 13px", fontSize: 12, fontWeight: 700, color: showReplyLinks ? theme.blue : theme.textMuted, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
+              <Ic icon={Link2} size={13} color={showReplyLinks ? theme.blue : theme.textMuted} />Links
+            </button>
+            <button onClick={handleSendReply} disabled={!replyText.trim() && replyLinks.filter(l => l.trim()).length === 0}
+              style={{ flex: 1, background: (replyText.trim() || replyLinks.filter(l => l.trim()).length > 0) ? `linear-gradient(135deg, ${theme.orange}, ${theme.orangeDark})` : theme.border, color: "#fff", border: "none", borderRadius: 10, padding: "9px", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <Ic icon={Send} size={14} color="#fff" />Send Reply
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -2589,6 +2668,7 @@ export default function App() {
               onAddModule={addModule}
               onUpdateContact={setContactInfo}
               threadReplies={threadReplies}
+              onAddReply={addReply}
             />
         }
       </div>
